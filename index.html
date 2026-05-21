@@ -3,7 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<!-- PWA core -->
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="STV TopUp">
+<meta name="application-name" content="STV TopUp">
+<meta name="theme-color" content="#0f1629">
+<meta name="description" content="ເຕີມເກມໄວ · ປອດໄພ · ທຸກເວລາ">
+<!-- Manifest injected by JS below -->
+<link id="pwa-manifest" rel="manifest">
+<!-- Apple touch icons (will be set by JS) -->
+<link id="apple-touch-icon" rel="apple-touch-icon">
 <title>STV TopUp</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -1369,6 +1380,160 @@ setInterval(()=>{
 
 // ── INIT ──
 initAuth();
+
+
+// ══════════════════════════════════════
+// PWA — Manifest + Icons + Service Worker
+// ══════════════════════════════════════
+(function initPWA() {
+  // ── Draw icon on canvas ──
+  function makeIcon(size) {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const r = size * 0.18;
+
+    // Background gradient
+    const bg = ctx.createLinearGradient(0, 0, size, size);
+    bg.addColorStop(0, '#ff6b35');
+    bg.addColorStop(1, '#ff9a3f');
+    ctx.beginPath();
+    ctx.roundRect(0, 0, size, size, r);
+    ctx.fillStyle = bg;
+    ctx.fill();
+
+    // Inner glow
+    const glow = ctx.createRadialGradient(size*0.35, size*0.32, 0, size*0.5, size*0.5, size*0.6);
+    glow.addColorStop(0, 'rgba(255,255,255,0.22)');
+    glow.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.beginPath();
+    ctx.roundRect(0, 0, size, size, r);
+    ctx.fillStyle = glow;
+    ctx.fill();
+
+    // Lightning bolt ⚡
+    const s = size;
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,255,180,0.6)';
+    ctx.shadowBlur = s * 0.08;
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    // bolt shape: top-right triangle then bottom-left triangle
+    const cx = s * 0.5, cy = s * 0.5;
+    const w = s * 0.28, h = s * 0.52;
+    ctx.moveTo(cx + w*0.15, cy - h*0.5);
+    ctx.lineTo(cx - w*0.55, cy + h*0.06);
+    ctx.lineTo(cx + w*0.08, cy + h*0.04);
+    ctx.lineTo(cx - w*0.15, cy + h*0.5);
+    ctx.lineTo(cx + w*0.55, cy - h*0.06);
+    ctx.lineTo(cx - w*0.08, cy - h*0.04);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+
+    // "STV" text at bottom
+    if (size >= 192) {
+      ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      ctx.font = `bold ${Math.round(s*0.13)}px Kanit, sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'bottom';
+      ctx.fillText('STV', s/2, s*0.93);
+    }
+    return c.toDataURL('image/png');
+  }
+
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+  const icon180 = makeIcon(180); // Apple
+
+  // ── Inject apple-touch-icon ──
+  document.getElementById('apple-touch-icon').href = icon180;
+
+  // ── Build manifest ──
+  const manifest = {
+    name: 'STV TopUp',
+    short_name: 'STV TopUp',
+    description: 'ເຕີມເກມໄວ · ປອດໄພ · ທຸກເວລາ',
+    start_url: './',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#0f1629',
+    theme_color: '#ff6b35',
+    icons: [
+      { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
+
+  // ── Register Service Worker (inline) ──
+  const swCode = `
+const CACHE='stv-v1';
+const SHELL=['./',location.href];
+self.addEventListener('install',e=>{ e.waitUntil(caches.open(CACHE).then(c=>c.addAll(SHELL)).catch(()=>{})); self.skipWaiting(); });
+self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==CACHE).map(k=>caches.delete(k))))); });
+self.addEventListener('fetch',e=>{
+  if(e.request.method!=='GET') return;
+  e.respondWith(fetch(e.request).catch(()=>caches.match(e.request)));
+});`;
+  if ('serviceWorker' in navigator) {
+    const swBlob = new Blob([swCode], { type: 'application/javascript' });
+    navigator.serviceWorker.register(URL.createObjectURL(swBlob), { scope: './' }).catch(()=>{});
+  }
+
+  // ── Install prompt banner ──
+  let deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    showInstallBanner();
+  });
+
+  function showInstallBanner() {
+    if (document.getElementById('pwa-banner')) return;
+    const b = document.createElement('div');
+    b.id = 'pwa-banner';
+    b.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#ff6b35,#ff9a3f);color:#fff;padding:11px 18px;border-radius:50px;font-family:Kanit,sans-serif;font-size:13px;font-weight:700;display:flex;align-items:center;gap:10px;z-index:9999;box-shadow:0 6px 24px rgba(255,107,53,.55);max-width:340px;cursor:pointer;animation:slideUp2 .4s ease';
+    b.innerHTML = '<span style="font-size:20px">📲</span><span>ຕິດຕັ້ງ STV TopUp ໃສ່ໜ້າຈໍ</span><span style="background:rgba(0,0,0,.2);border-radius:20px;padding:4px 12px;font-size:12px">ຕິດຕັ້ງ</span>';
+    const style = document.createElement('style');
+    style.textContent = '@keyframes slideUp2{from{transform:translateX(-50%) translateY(30px);opacity:0}to{transform:translateX(-50%) translateY(0);opacity:1}}';
+    document.head.appendChild(style);
+    b.onclick = async () => {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+      }
+      b.remove();
+    };
+    // close btn
+    const x = document.createElement('span');
+    x.textContent = '✕';
+    x.style.cssText = 'opacity:.7;font-size:15px;margin-left:4px';
+    x.onclick = e => { e.stopPropagation(); b.remove(); };
+    b.appendChild(x);
+    document.body.appendChild(b);
+    setTimeout(() => { if (b.parentNode) b.remove(); }, 15000);
+  }
+
+  // iOS: show manual instruction if not standalone
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.navigator.standalone;
+  if (isIOS && !isStandalone) {
+    setTimeout(() => {
+      if (document.getElementById('pwa-banner')) return;
+      const b = document.createElement('div');
+      b.id = 'pwa-banner';
+      b.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#1c2847,#243058);border:1px solid rgba(255,107,53,.4);color:#e8eaf6;padding:13px 18px;border-radius:18px;font-family:Kanit,sans-serif;font-size:13px;display:flex;align-items:center;gap:10px;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.5);max-width:320px';
+      b.innerHTML = '<span style="font-size:24px">📲</span><div><div style="font-weight:700;margin-bottom:3px">ຕິດຕັ້ງໃສ່ iPhone</div><div style="font-size:11px;color:#7986cb;line-height:1.5">ກົດ <strong style="color:#ff6b35">Share ⎋</strong> ແລ້ວເລືອກ<br><strong style="color:#ff6b35">"Add to Home Screen"</strong></div></div><span id="pwa-x" style="margin-left:auto;opacity:.5;font-size:17px;cursor:pointer;padding:4px">✕</span>';
+      document.body.appendChild(b);
+      document.getElementById('pwa-x').onclick = () => b.remove();
+      setTimeout(() => { if (b.parentNode) b.remove(); }, 12000);
+    }, 2500);
+  }
+})();
+
 </script>
 </body>
 </html>
