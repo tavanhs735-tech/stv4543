@@ -124,7 +124,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .gtab-img{width:26px;height:26px;border-radius:7px;overflow:hidden}
 .gtab-img img{width:100%;height:100%;object-fit:cover}
 .gfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px}
-.gpanel{display:none;padding:10px 18px 16px}.gpanel.active{display:block}
+.gpanel{display:none;padding:10px 18px 24px}.gpanel.active{display:block}
 .gdh{border-radius:16px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
 .gdh-m{background:linear-gradient(135deg,#0d1f5c,#2a5fd1)}
 .gdh-f{background:linear-gradient(135deg,#5a0d00,#d13c1a)}
@@ -145,7 +145,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .pkg-amt{font-size:15px;font-weight:800;display:block;margin-bottom:3px}
 .pkg-prc{font-size:13px;color:var(--theme-p);font-weight:700}
 .pkg-hot{position:absolute;top:-7px;right:7px;background:var(--gold);color:#333;font-size:10px;font-weight:800;padding:2px 6px;border-radius:9px}
-.order-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--theme-p),var(--theme-p2));color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 7px 18px rgba(255,107,53,.4);transition:transform .15s}
+.order-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--theme-p),var(--theme-p2));color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 7px 18px rgba(255,107,53,.4);transition:transform .15s;margin-top:4px;display:block}
 .order-btn:active{transform:scale(.97)}
 
 /* ── HISTORY ── */
@@ -303,6 +303,15 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 /* RT dot */
 .rt-dot{width:8px;height:8px;background:var(--ok);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* Package editor */
+.pkg-edit-game{background:var(--card);border:1px solid var(--bdr);border-radius:13px;padding:14px;margin-bottom:12px}
+.pkg-edit-game-title{font-size:14px;font-weight:800;margin-bottom:11px;display:flex;align-items:center;gap:7px}
+.pkg-edit-row{display:grid;grid-template-columns:1fr 1fr auto;gap:7px;align-items:center;margin-bottom:7px}
+.pkg-edit-row input{background:var(--bg);border:1.5px solid var(--bdr);border-radius:9px;padding:9px 10px;color:var(--text);font-family:inherit;font-size:13px;outline:none;width:100%}
+.pkg-edit-row input:focus{border-color:var(--theme-p)}
+.pkg-hot-toggle{background:var(--bg);border:1.5px solid var(--bdr);border-radius:9px;padding:7px 10px;color:var(--muted);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap}
+.pkg-hot-toggle.on{border-color:var(--gold);color:var(--gold);background:rgba(255,215,0,.1)}
 
 /* SLIP VIEWER */
 .slip-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;align-items:center;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)}
@@ -534,6 +543,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <div class="adm-tabs">
       <button class="at active" onclick="switchAdmTab('orders',this)">📋 ຄຳສັ່ງ</button>
       <button class="at" onclick="switchAdmTab('users',this)">👥 ຜູ້ໃຊ້</button>
+      <button class="at" onclick="switchAdmTab('packages',this)">💎 Packages</button>
       <button class="at" onclick="switchAdmTab('appearance',this)">🎨 ຮູບລັກ</button>
       <button class="at" onclick="switchAdmTab('settings',this)">⚙️ ຕັ້ງຄ່າ</button>
     </div>
@@ -544,7 +554,12 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <!-- Users tab -->
     <div class="adm-pg" id="adm-users"><div id="adm-user-list"><div style="text-align:center;padding:30px;color:var(--muted)">ໂຫລດ...</div></div></div>
 
-    <!-- Appearance tab -->
+    <!-- Packages tab -->
+    <div class="adm-pg" id="adm-packages">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">💡 ແກ້ໄຂລາຄາ ແລະ ຊື່ Package ໄດ້ທີ່ນີ້ — ທຸກຜູ້ໃຊ້ຈະເຫັນຂໍ້ມູນໃໝ່ທັນທີ</div>
+      <div id="pkg-editor-list"></div>
+      <button class="save-btn" onclick="savePackages()" style="width:100%;padding:14px;font-size:15px;margin-top:8px">💾 ບັນທຶກ Packages ທັງໝົດ</button>
+    </div>
     <div class="adm-pg" id="adm-appearance">
       <!-- Logo -->
       <div class="setting-row">
@@ -780,6 +795,41 @@ const SB = {
       if (!r.ok) return null;
       return `${SB_URL}/storage/v1/object/public/slips/${filename}`;
     } catch { return null; }
+  },
+  async uploadQr(dataURL) {
+    try {
+      const blob = await (await fetch(dataURL)).blob();
+      const filename = 'payment_qr.jpg';
+      // Try upsert (PUT) first, then POST
+      for (const method of ['PUT','POST']) {
+        const r = await fetch(`${SB_URL}/storage/v1/object/slips/${filename}`, {
+          method,
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': blob.type, 'x-upsert': 'true' },
+          body: blob
+        });
+        if (r.ok) return `${SB_URL}/storage/v1/object/public/slips/${filename}?t=${Date.now()}`;
+      }
+      return null;
+    } catch { return null; }
+  },
+  async getSetting(key) {
+    try {
+      const r = await fetch(`${SB_URL}/rest/v1/settings?key=eq.${encodeURIComponent(key)}&select=value`, { headers: hdrs });
+      if (!r.ok) return null;
+      const d = await r.json();
+      return d.length ? d[0].value : null;
+    } catch { return null; }
+  },
+  async setSetting(key, value) {
+    try {
+      // Upsert
+      const r = await fetch(`${SB_URL}/rest/v1/settings`, {
+        method: 'POST',
+        headers: { ...hdrs, 'Prefer': 'resolution=merge-duplicates' },
+        body: JSON.stringify({ key, value })
+      });
+      return r.ok;
+    } catch { return false; }
   }
 };
 
@@ -824,7 +874,7 @@ function showAuthScreen() {
   document.getElementById('main-app').style.display = 'none';
 }
 
-function showMainApp(user) {
+async function showMainApp(user) {
   document.getElementById('auth-screen').style.display = 'none';
   const ma = document.getElementById('main-app');
   ma.style.display = 'flex';
@@ -834,7 +884,7 @@ function showMainApp(user) {
   const emailShort = user.email ? user.email.split('@')[0] : 'ຜູ້ໃຊ້';
   document.getElementById('prof-email-display').textContent = user.email || 'ຜູ້ໃຊ້';
   loadProfileStats();
-  loadAppearance();
+  await loadAppearance();
 }
 
 // ── EMAIL MEMORY ──
@@ -989,10 +1039,22 @@ function applyLogo(src) {
 function handleQrUpload(input) {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async e => {
     const src = e.target.result;
-    localStorage.setItem('stv_qr', src);
-    applyQr(src);
+    showLoading('ກຳລັງອັບໂຫລດ QR...');
+    // Upload to Supabase Storage so ALL users see it
+    const publicUrl = await SB.uploadQr(src);
+    hideLoading();
+    if (publicUrl) {
+      await SB.setSetting('qr_url', publicUrl);
+      applyQr(publicUrl + '&nocache=' + Date.now());
+      showToast('✅ ອັບໂຫລດ QR ສຳເລັດ! ທຸກຄົນເຫັນແລ້ວ');
+    } else {
+      // fallback: localStorage only
+      localStorage.setItem('stv_qr', src);
+      applyQr(src);
+      showToast('⚠️ ບັນທຶກ QR ສຳເລັດ (ສະເພາະເຄື່ອງນີ້)', 'err');
+    }
   };
   reader.readAsDataURL(file);
 }
@@ -1015,14 +1077,111 @@ function saveAppearance() {
   showToast('🎨 ບັນທຶກຮູບລັກສຳເລັດ!');
 }
 
-function loadAppearance() {
+async function loadAppearance() {
   const cfg = getCfg();
   if (cfg.themeP)  applyThemeColor(cfg.themeP, cfg.themeP2 || cfg.themeP);
   const logo = localStorage.getItem('stv_logo');
   if (logo) applyLogo(logo);
-  const qr = localStorage.getItem('stv_qr');
-  if (qr) applyQr(qr);
+  // Load QR from Supabase first (shared), fallback to localStorage
+  const qrUrl = await SB.getSetting('qr_url');
+  if (qrUrl) {
+    applyQr(qrUrl);
+  } else {
+    const qr = localStorage.getItem('stv_qr');
+    if (qr) applyQr(qr);
+  }
+  // Load packages from Supabase if available
+  await loadPackagesFromCloud();
   buildColorSwatches();
+}
+
+// ══════════════════════════════════════
+// PACKAGES — Cloud sync
+// ══════════════════════════════════════
+async function loadPackagesFromCloud() {
+  try {
+    const raw = await SB.getSetting('game_packages');
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    // Merge saved packages into GAMES
+    Object.keys(saved).forEach(gk => {
+      if (GAMES[gk]) {
+        GAMES[gk].pkgs = saved[gk];
+        // Rebuild package UI for this game
+        rebuildGamePkgUI(gk);
+      }
+    });
+  } catch(e) { console.warn('Package load failed', e); }
+}
+
+function rebuildGamePkgUI(gk) {
+  const el = document.getElementById('pkgs-'+gk);
+  if (!el) return;
+  el.innerHTML = '';
+  GAMES[gk].pkgs.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'pkg' + (i === 0 ? ' sel' : '');
+    d.id = `pkg-${gk}-${i}`;
+    d.onclick = () => selectPkg(gk, i);
+    d.innerHTML = `${p.hot ? '<span class="pkg-hot">HOT 🔥</span>' : ''}
+      <span class="pkg-ico">💎</span>
+      <span class="pkg-amt">${p.l}</span>
+      <span class="pkg-prc">${Number(p.p).toLocaleString()} ₭</span>`;
+    el.appendChild(d);
+  });
+  selPkg[gk] = 0;
+}
+
+function buildPackageEditor() {
+  const el = document.getElementById('pkg-editor-list');
+  el.innerHTML = '';
+  Object.keys(GAMES).forEach(gk => {
+    const g = GAMES[gk];
+    const block = document.createElement('div');
+    block.className = 'pkg-edit-game';
+    block.innerHTML = `<div class="pkg-edit-game-title"><span>${g.icon}</span> ${g.name}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:7px;margin-bottom:6px">
+        <div style="font-size:10px;color:var(--muted);font-weight:700;padding-left:4px">ຊື່ Package</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700;padding-left:4px">ລາຄາ (₭)</div>
+        <div style="font-size:10px;color:var(--muted);font-weight:700">HOT</div>
+      </div>
+      <div id="pkg-rows-${gk}"></div>`;
+    el.appendChild(block);
+    const rowsEl = block.querySelector(`#pkg-rows-${gk}`);
+    g.pkgs.forEach((p, i) => {
+      const row = document.createElement('div');
+      row.className = 'pkg-edit-row';
+      row.innerHTML = `
+        <input type="text" value="${p.l}" id="pke-l-${gk}-${i}" placeholder="ຊື່ Package">
+        <input type="number" value="${p.p}" id="pke-p-${gk}-${i}" placeholder="ລາຄາ">
+        <button class="pkg-hot-toggle${p.hot?' on':''}" id="pke-h-${gk}-${i}"
+          onclick="this.classList.toggle('on')">${p.hot?'🔥 HOT':'—'}</button>`;
+      rowsEl.appendChild(row);
+      // toggle label
+      row.querySelector(`#pke-h-${gk}-${i}`).addEventListener('click', function() {
+        this.textContent = this.classList.contains('on') ? '🔥 HOT' : '—';
+      });
+    });
+  });
+}
+
+async function savePackages() {
+  const newPkgs = {};
+  Object.keys(GAMES).forEach(gk => {
+    newPkgs[gk] = GAMES[gk].pkgs.map((_, i) => {
+      const l = document.getElementById(`pke-l-${gk}-${i}`)?.value.trim() || _.l;
+      const p = parseInt(document.getElementById(`pke-p-${gk}-${i}`)?.value) || _.p;
+      const hot = document.getElementById(`pke-h-${gk}-${i}`)?.classList.contains('on') || false;
+      return { l, p, hot };
+    });
+    GAMES[gk].pkgs = newPkgs[gk];
+    rebuildGamePkgUI(gk);
+  });
+  showLoading('ກຳລັງບັນທຶກ...');
+  const ok = await SB.setSetting('game_packages', JSON.stringify(newPkgs));
+  hideLoading();
+  if (ok) showToast('✅ ບັນທຶກ Packages ສຳເລັດ! ທຸກຄົນເຫັນແລ້ວ');
+  else showToast('⚠️ ບໍ່ສາມາດ sync ໄດ້ — ກວດສອບ Supabase settings table', 'err');
 }
 
 // ══════════════════════════════════════
@@ -1248,6 +1407,7 @@ function switchAdmTab(tab, btn) {
   document.getElementById('adm-'+tab).classList.add('active');
   btn.classList.add('active');
   if(tab==='users') loadAdminUsers();
+  if(tab==='packages') buildPackageEditor();
 }
 
 async function renderAdminDash() {
