@@ -2094,107 +2094,30 @@ setInterval(()=>{
 initAuth();
 
 
+
+
 // ══════════════════════════════════════
 // PWA — Manifest + Icons + Service Worker
 // ══════════════════════════════════════
 (function initPWA() {
-  // ── Rounded rect fallback for older Android WebView ──
-  function roundRectFallback(ctx, x, y, w, h, r) {
-    if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
-  }
-
-  // ── Draw icon on canvas ──
-  function makeIcon(size) {
-    const c = document.createElement('canvas');
-    c.width = c.height = size;
-    const ctx = c.getContext('2d');
-    const r = size * 0.18;
-
-    // Background gradient
-    const bg = ctx.createLinearGradient(0, 0, size, size);
-    bg.addColorStop(0, '#ff6b35');
-    bg.addColorStop(1, '#ff9a3f');
-    ctx.beginPath();
-    roundRectFallback(ctx, 0, 0, size, size, r);
-    ctx.fillStyle = bg;
-    ctx.fill();
-
-    // Inner glow
-    const glow = ctx.createRadialGradient(size*0.35, size*0.32, 0, size*0.5, size*0.5, size*0.6);
-    glow.addColorStop(0, 'rgba(255,255,255,0.22)');
-    glow.addColorStop(1, 'rgba(0,0,0,0)');
-    ctx.beginPath();
-    roundRectFallback(ctx, 0, 0, size, size, r);
-    ctx.fillStyle = glow;
-    ctx.fill();
-
-    // Lightning bolt ⚡
-    const s = size;
-    ctx.save();
-    ctx.shadowColor = 'rgba(255,255,180,0.6)';
-    ctx.shadowBlur = s * 0.08;
-    ctx.fillStyle = '#fff';
-    ctx.beginPath();
-    // bolt shape: top-right triangle then bottom-left triangle
-    const cx = s * 0.5, cy = s * 0.5;
-    const w = s * 0.28, h = s * 0.52;
-    ctx.moveTo(cx + w*0.15, cy - h*0.5);
-    ctx.lineTo(cx - w*0.55, cy + h*0.06);
-    ctx.lineTo(cx + w*0.08, cy + h*0.04);
-    ctx.lineTo(cx - w*0.15, cy + h*0.5);
-    ctx.lineTo(cx + w*0.55, cy - h*0.06);
-    ctx.lineTo(cx - w*0.08, cy - h*0.04);
-    ctx.closePath();
-    ctx.fill();
-    ctx.restore();
-
-    // "STV" text at bottom
-    if (size >= 192) {
-      ctx.fillStyle = 'rgba(255,255,255,0.82)';
-      ctx.font = `bold ${Math.round(s*0.13)}px Kanit, sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'bottom';
-      ctx.fillText('STV', s/2, s*0.93);
-    }
-    return c.toDataURL('image/png');
-  }
-
-  // ── Use icon.png if available, fallback to canvas ──
-  function setupIcons(iconSrc) {
-    document.getElementById('apple-touch-icon').href = iconSrc;
-    const manifest = {
-      name: 'STV TopUp',
-      short_name: 'STV TopUp',
-      description: 'ເຕີມເກມໄວ · ປອດໄພ · ທຸກເວລາ',
-      start_url: './',
-      display: 'standalone',
-      orientation: 'portrait',
-      background_color: '#0f1629',
-      theme_color: '#ff6b35',
-      icons: [
-        { src: iconSrc, sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
-        { src: iconSrc, sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
-      ]
-    };
-    const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
-    document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
-  }
-
-  // Try loading icon.png first — fallback to canvas if not found
-  const testImg = new Image();
-  testImg.onload = () => setupIcons('icon.png');
-  testImg.onerror = () => { const icon = makeIcon(192); setupIcons(icon); };
-  testImg.src = 'icon.png';
+  // ── ใช้ icon.png โดยตรง ──
+  document.getElementById('apple-touch-icon').href = 'icon.png';
+  const manifest = {
+    name: 'STV TopUp',
+    short_name: 'STV TopUp',
+    description: 'ເຕີມເກມໄວ · ປອດໄພ · ທຸກເວລາ',
+    start_url: './',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: '#0f1629',
+    theme_color: '#ff6b35',
+    icons: [
+      { src: 'icon.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
+      { src: 'icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+    ]
+  };
+  const blob = new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' });
+  document.getElementById('pwa-manifest').href = URL.createObjectURL(blob);
 
   // ── Register Service Worker (inline) ──
   const swCode = `
