@@ -387,6 +387,17 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .toast{position:fixed;top:75px;left:50%;transform:translateX(-50%);background:var(--ok);color:#001;padding:10px 22px;border-radius:28px;font-weight:700;font-size:13px;z-index:900;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;max-width:340px;text-align:center}
 .toast.on{opacity:1}
 .toast.err{background:var(--err);color:#fff}
+
+/* ── PROMO IMAGES ── */
+.promo-img-wrap{padding:4px 18px 14px}
+.promo-img-item{position:relative;border-radius:16px;overflow:hidden;margin-bottom:10px;cursor:pointer;box-shadow:0 4px 18px rgba(0,0,0,.4)}
+.promo-img-item img{width:100%;display:block;border-radius:16px;object-fit:cover;max-height:180px}
+.promo-editor-item{background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:14px;margin-bottom:10px}
+.promo-editor-item .pe-prev{width:100%;height:130px;border-radius:10px;overflow:hidden;background:var(--bg);display:flex;align-items:center;justify-content:center;margin-bottom:10px;border:1.5px dashed var(--bdr)}
+.promo-editor-item .pe-prev img{width:100%;height:100%;object-fit:cover}
+.pe-upload{display:block;width:100%;padding:10px;background:rgba(255,107,53,.12);border:1.5px solid var(--theme-p);color:var(--theme-p);border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;text-align:center;margin-bottom:8px}
+.pe-upload input{display:none}
+.pe-del{width:100%;padding:9px;background:rgba(255,68,68,.1);border:1px solid var(--err);color:var(--err);border-radius:9px;font-family:inherit;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -484,10 +495,12 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     </div>
   </div>
   <div class="sh"><span class="sh-t">🔥 ໂປຣໂມຊັ່ນ</span></div>
-  <div class="bnr-row">
-    <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ທຸກ Package</span></div></div>
-    <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
-    <div class="bnr br" onclick="switchPage('topup');switchGame('ROV')"><div class="bnr-bg">👑</div><div class="bnr-lbl"><strong>ROV</strong><span>Coins ເຕີມທັນທີ</span></div></div>
+  <div id="promo-section">
+    <div class="bnr-row">
+      <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ທຸກ Package</span></div></div>
+      <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
+      <div class="bnr br" onclick="switchPage('topup');switchGame('ROV')"><div class="bnr-bg">👑</div><div class="bnr-lbl"><strong>ROV</strong><span>Coins ເຕີມທັນທີ</span></div></div>
+    </div>
   </div>
   <div class="sh"><span class="sh-t">📋 ຂັ້ນຕອນ</span></div>
   <div class="steps">
@@ -613,6 +626,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
       <button class="at" onclick="switchAdmTab('packages',this)">💎 Packages</button>
       <button class="at" onclick="switchAdmTab('gameimgs',this)">🖼 ຮູບເກມ</button>
       <button class="at" onclick="switchAdmTab('appearance',this)">🎨 ຮູບລັກ</button>
+      <button class="at" onclick="switchAdmTab('promos',this)">📢 ໂປຣໂມ</button>
       <button class="at" onclick="switchAdmTab('settings',this)">⚙️ ຕັ້ງຄ່າ</button>
     </div>
 
@@ -675,6 +689,14 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
       </div>
 
       <button class="save-btn" onclick="saveAppearance()">💾 ບັນທຶກຮູບລັກ</button>
+    </div>
+
+    <!-- Promos tab -->
+    <div class="adm-pg" id="adm-promos">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">📢 ອັບໂຫລດຮູບໂປຣໂມຊັ່ນ — ຮູບຈະສະແດງໃນໜ້າຫຼັກທຸກໂທລະສັບ</div>
+      <div id="promo-editor-list"></div>
+      <button onclick="addPromoSlot()" style="width:100%;padding:12px;background:rgba(0,212,255,.12);border:1.5px dashed var(--ac);color:var(--ac);border-radius:12px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px">➕ ເພີ່ມຮູບໂປຣໂມ</button>
+      <button class="save-btn" onclick="savePromos()" style="width:100%;padding:14px;font-size:15px">💾 ບັນທຶກ & Push ໂປຣໂມ</button>
     </div>
 
     <!-- Settings tab -->
@@ -1286,6 +1308,7 @@ async function loadAppearance() {
   // Load packages from Supabase if available
   await loadPackagesFromCloud();
   await loadGameImagesFromCloud();
+  loadPromosFromCloud();
   buildColorSwatches();
 }
 
@@ -1612,6 +1635,7 @@ function switchAdmTab(tab, btn) {
   if(tab==='users') loadAdminUsers();
   if(tab==='packages') buildPackageEditor();
   if(tab==='gameimgs') buildGameImageEditor();
+  if(tab==='promos') buildPromoEditor();
 }
 
 async function renderAdminDash() {
@@ -1951,6 +1975,127 @@ async function refreshHistory(btn) {
   await loadAndRenderHistory();
   if (btn) { btn.textContent = '🔄 ໂຫລດໃໝ່'; btn.disabled = false; }
   showToast('✅ ໂຫລດໃໝ່ສຳເລັດ!');
+}
+
+
+// ── PROMO IMAGES ──
+let promoTemp = {}; // {index: base64}
+
+function getPromos() {
+  try { return JSON.parse(localStorage.getItem('stv_promos') || '[]'); } catch { return []; }
+}
+
+function renderPromos() {
+  const promos = getPromos();
+  const el = document.getElementById('promo-section');
+  if (!el) return;
+  if (!promos.length) {
+    // fallback banners
+    el.innerHTML = `<div class="bnr-row">
+      <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ທຸກ Package</span></div></div>
+      <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
+      <div class="bnr br" onclick="switchPage('topup');switchGame('ROV')"><div class="bnr-bg">👑</div><div class="bnr-lbl"><strong>ROV</strong><span>Coins ເຕີມທັນທີ</span></div></div>
+    </div>`;
+    return;
+  }
+  el.innerHTML = `<div class="promo-img-wrap">${promos.map((src,i) =>
+    `<div class="promo-img-item"><img src="${src}" alt="ໂປຣໂມ ${i+1}" loading="lazy" onerror="this.parentNode.style.display='none'"></div>`
+  ).join('')}</div>`;
+}
+
+function buildPromoEditor() {
+  const promos = getPromos();
+  const el = document.getElementById('promo-editor-list');
+  el.innerHTML = '';
+  promoTemp = {};
+  promos.forEach((src, i) => {
+    const div = document.createElement('div');
+    div.className = 'promo-editor-item';
+    div.id = 'pe-' + i;
+    div.innerHTML = `
+      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">📢 ໂປຣໂມ ${i+1}</div>
+      <div class="pe-prev" id="pe-prev-${i}"><img src="${src}" onerror="this.parentNode.innerHTML='<span style=color:var(--muted)>🖼</span>'"></div>
+      <label class="pe-upload">📁 ປ່ຽນຮູບ
+        <input type="file" accept="image/*" onchange="previewPromo(this,${i})">
+      </label>
+      <button class="pe-del" onclick="deletePromo(${i})">🗑 ລົບໂປຣໂມນີ້</button>`;
+    el.appendChild(div);
+  });
+  if (!promos.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">ຍັງບໍ່ມີໂປຣໂມ — ກົດ ➕ ເພີ່ມ</div>';
+  }
+}
+
+function addPromoSlot() {
+  const promos = getPromos();
+  if (promos.length >= 10) { showToast('⚠️ ສູງສຸດ 10 ຮູບ', 'err'); return; }
+  // Add placeholder, then let user upload
+  const idx = promos.length;
+  const div = document.createElement('div');
+  div.className = 'promo-editor-item';
+  div.id = 'pe-' + idx;
+  div.innerHTML = `
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">📢 ໂປຣໂມ ${idx+1} (ໃໝ່)</div>
+    <div class="pe-prev" id="pe-prev-${idx}"><span style="color:var(--muted);font-size:28px">🖼</span></div>
+    <label class="pe-upload">📁 ເລືອກຮູບ
+      <input type="file" accept="image/*" onchange="previewPromo(this,${idx})">
+    </label>
+    <button class="pe-del" onclick="this.closest('.promo-editor-item').remove()">✕ ຍົກເລີກ</button>`;
+  document.getElementById('promo-editor-list').appendChild(div);
+}
+
+function previewPromo(input, idx) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    promoTemp[idx] = e.target.result;
+    const prev = document.getElementById('pe-prev-' + idx);
+    if (prev) prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+  };
+  reader.readAsDataURL(file);
+}
+
+function deletePromo(idx) {
+  if (!confirm('ລົບໂປຣໂມນີ້?')) return;
+  const promos = getPromos();
+  promos.splice(idx, 1);
+  localStorage.setItem('stv_promos', JSON.stringify(promos));
+  buildPromoEditor();
+  renderPromos();
+  showToast('🗑 ລົບສຳເລັດ');
+  SB.setSetting('promo_images', JSON.stringify(promos));
+}
+
+async function savePromos() {
+  const promos = getPromos();
+  // Merge existing + new/updated
+  const editors = document.querySelectorAll('.promo-editor-item');
+  const result = [];
+  editors.forEach((div, i) => {
+    const idx = parseInt(div.id.replace('pe-',''));
+    if (promoTemp[idx]) result.push(promoTemp[idx]);
+    else if (promos[idx]) result.push(promos[idx]);
+  });
+  if (!result.length) { showToast('⚠️ ບໍ່ມີຮູບ', 'err'); return; }
+  localStorage.setItem('stv_promos', JSON.stringify(result));
+  showLoading('ກຳລັງ sync ໂປຣໂມ...');
+  const ok = await SB.setSetting('promo_images', JSON.stringify(result));
+  hideLoading();
+  if (ok) showToast('✅ Sync ໂປຣໂມ ທຸກໂທລະສັບສຳເລັດ!');
+  else showToast('⚠️ ບັນທຶກສະເພາະເຄື່ອງນີ້', 'err');
+  promoTemp = {};
+  buildPromoEditor();
+  renderPromos();
+}
+
+async function loadPromosFromCloud() {
+  try {
+    const raw = await SB.getSetting('promo_images');
+    if (!raw) { const local = getPromos(); if (local.length) renderPromos(); return; }
+    const imgs = JSON.parse(raw);
+    localStorage.setItem('stv_promos', JSON.stringify(imgs));
+    renderPromos();
+  } catch { const local = getPromos(); if (local.length) renderPromos(); }
 }
 
 // ── GAME IMAGES ──
