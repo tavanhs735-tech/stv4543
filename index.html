@@ -53,6 +53,12 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .auth-msg{font-size:12px;text-align:center;padding:10px;border-radius:9px;margin-top:10px}
 .auth-msg.ok{background:rgba(0,230,118,.12);color:var(--ok)}
 .auth-msg.err{background:rgba(255,68,68,.12);color:var(--err)}
+/* OTP boxes */
+.otp-row{display:flex;gap:8px;justify-content:center;margin:18px 0}
+.otp-box{width:42px;height:52px;background:var(--bg);border:2px solid var(--bdr);border-radius:11px;color:var(--text);font-family:inherit;font-size:22px;font-weight:800;text-align:center;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.otp-box:focus{border-color:var(--theme-p)}
+.otp-resend{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+.otp-resend span{color:var(--theme-p);cursor:pointer;font-weight:600}
 
 /* ── HERO ── */
 .hero{padding:22px 18px 18px;position:relative;overflow:hidden;background:linear-gradient(135deg,#1a2744,#0f1629 60%,#1a0d2e)}
@@ -318,9 +324,9 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <!-- Login form -->
     <div class="auth-card" id="auth-login-card">
       <h3>👋 ເຂົ້າສູ່ລະບົບ</h3>
-      <p>ໃສ່ອີເມລຂອງທ່ານ ລະບົບຈະສົ່ງລິ້ງ Magic Link ໃຫ້ທ່ານໂດຍກົງ</p>
+      <p>ໃສ່ອີເມລຂອງທ່ານ ລະບົບຈະສົ່ງລະຫັດ 6 ຕົວ ໃຫ້ທ່ານທາງ email</p>
       <input class="auth-input" type="email" id="login-email" placeholder="yourname@email.com">
-      <button class="auth-btn" id="login-btn" onclick="sendMagicLink()">📧 ສົ່ງ Magic Link</button>
+      <button class="auth-btn" id="login-btn" onclick="sendMagicLink()">📧 ສົ່ງລະຫັດ OTP</button>
       <div class="auth-divider">— ຫຼື —</div>
       <div class="auth-link" onclick="showRegCard()">ຍັງບໍ່ມີບັນຊີ? ສະໝັກໃໝ່</div>
       <div id="login-msg"></div>
@@ -329,21 +335,32 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <!-- Register form -->
     <div class="auth-card" id="auth-reg-card" style="display:none">
       <h3>✨ ສະໝັກສະມາຊິກ</h3>
-      <p>ໃສ່ອີເມລຂອງທ່ານ ລະບົບຈະສົ່ງລິ້ງຢືນຢັນໃຫ້ທ່ານ ບໍ່ຕ້ອງໃສ່ລະຫັດຜ່ານ</p>
+      <p>ໃສ່ອີເມລຂອງທ່ານ ລະບົບຈະສົ່ງລະຫັດ OTP 6 ຕົວ ໃຫ້ທ່ານທາງ email</p>
       <input class="auth-input" type="email" id="reg-email" placeholder="yourname@email.com">
-      <button class="auth-btn" id="reg-btn" onclick="sendRegLink()">🚀 ສ້າງບັນຊີ & ສົ່ງລິ້ງ</button>
+      <button class="auth-btn" id="reg-btn" onclick="sendRegLink()">🚀 ສ້າງບັນຊີ & ສົ່ງ OTP</button>
       <div class="auth-divider">— ຫຼື —</div>
       <div class="auth-link" onclick="showLoginCard()">ມີບັນຊີແລ້ວ? ເຂົ້າສູ່ລະບົບ</div>
       <div id="reg-msg"></div>
     </div>
 
-    <!-- Waiting for magic link -->
+    <!-- OTP verify card -->
     <div class="auth-card" id="auth-wait-card" style="display:none">
       <div style="text-align:center">
         <div style="font-size:48px;margin-bottom:14px">📬</div>
-        <h3 style="margin-bottom:8px">ກວດສອບອີເມລ</h3>
-        <p id="wait-email-txt">ເຮົາສົ່ງລິ້ງໄປຫາ email ຂອງທ່ານແລ້ວ<br>ກົດລິ້ງໃນ email ເພື່ອເຂົ້າລະບົບ</p>
-        <button class="auth-btn" style="margin-top:16px" onclick="showLoginCard()">← ກັບໄປ</button>
+        <h3 style="margin-bottom:8px">ໃສ່ລະຫັດ OTP</h3>
+        <p id="wait-email-txt" style="margin-bottom:0">ເຮົາສົ່ງລະຫັດ 6 ຕົວໄປທີ່ email ຂອງທ່ານ<br>ກະລຸນາກວດ inbox (ລວມ Spam)</p>
+        <div class="otp-row">
+          <input class="otp-box" id="otp1" type="number" min="0" max="9" maxlength="1" oninput="otpMove(this,'otp2')" onkeydown="otpKey(event,this,'')" >
+          <input class="otp-box" id="otp2" type="number" min="0" max="9" maxlength="1" oninput="otpMove(this,'otp3')" onkeydown="otpKey(event,this,'otp1')">
+          <input class="otp-box" id="otp3" type="number" min="0" max="9" maxlength="1" oninput="otpMove(this,'otp4')" onkeydown="otpKey(event,this,'otp2')">
+          <input class="otp-box" id="otp4" type="number" min="0" max="9" maxlength="1" oninput="otpMove(this,'otp5')" onkeydown="otpKey(event,this,'otp3')">
+          <input class="otp-box" id="otp5" type="number" min="0" max="9" maxlength="1" oninput="otpMove(this,'otp6')" onkeydown="otpKey(event,this,'otp4')">
+          <input class="otp-box" id="otp6" type="number" min="0" max="9" maxlength="1" oninput="otpMove(this,'')" onkeydown="otpKey(event,this,'otp5')">
+        </div>
+        <div id="otp-msg"></div>
+        <button class="auth-btn" id="otp-verify-btn" style="margin-top:12px" onclick="verifyOtpCode()">✅ ຢືນຢັນລະຫັດ</button>
+        <div class="otp-resend">ບໍ່ໄດ້ຮັບ? <span onclick="resendOtp()">ສົ່ງໃໝ່</span></div>
+        <button class="auth-btn" style="margin-top:8px;background:var(--card);color:var(--muted);box-shadow:none;border:1px solid var(--bdr)" onclick="showLoginCard()">← ກັບໄປ</button>
       </div>
     </div>
   </div>
@@ -726,6 +743,16 @@ const SB = {
     const r = await fetch(`${SB_URL}/rest/v1/orders?id=eq.${id}`, { method: 'DELETE', headers: hdrs });
     if (!r.ok) throw new Error(await r.text());
   },
+  async verifyOtp(email, token) {
+    const r = await fetch(`${SB_URL}/auth/v1/verify`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'email', email, token })
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.msg || data.error_description || 'ລະຫັດບໍ່ຖືກຕ້ອງ');
+    return data;
+  },
   async uploadSlip(dataURL, filename) {
     try {
       const blob = await (await fetch(dataURL)).blob();
@@ -788,6 +815,8 @@ function showMainApp(user) {
   loadAppearance();
 }
 
+let _otpEmail = '';
+
 async function sendMagicLink() {
   const email = document.getElementById('login-email').value.trim();
   if (!email || !email.includes('@')) { showAuthMsg('login-msg', '⚠️ ໃສ່ອີເມລໃຫ້ຖືກຕ້ອງ', 'err'); return; }
@@ -795,10 +824,13 @@ async function sendMagicLink() {
   btn.disabled = true; btn.textContent = '📨 ກຳລັງສົ່ງ...';
   try {
     await SB.signInMagicLink(email);
-    document.getElementById('wait-email-txt').innerHTML = `ເຮົາສົ່ງລິ້ງໄປຫາ <strong>${email}</strong> ແລ້ວ<br>ກົດລິ້ງໃນ email ເພື່ອເຂົ້າລະບົບ`;
+    _otpEmail = email;
+    document.getElementById('wait-email-txt').innerHTML = `ເຮົາສົ່ງລະຫັດ 6 ຕົວໄປຫາ <strong>${email}</strong><br>ກະລຸນາກວດ inbox (ລວມ Spam)`;
+    clearOtpBoxes();
     showWaitCard();
+    setTimeout(()=>document.getElementById('otp1').focus(),300);
   } catch (e) { showAuthMsg('login-msg', '❌ ' + e.message, 'err'); }
-  btn.disabled = false; btn.textContent = '📧 ສົ່ງ Magic Link';
+  btn.disabled = false; btn.textContent = '📧 ສົ່ງລະຫັດ OTP';
 }
 
 async function sendRegLink() {
@@ -808,10 +840,65 @@ async function sendRegLink() {
   btn.disabled = true; btn.textContent = '📨 ກຳລັງສ້າງ...';
   try {
     await SB.signInMagicLink(email);
-    document.getElementById('wait-email-txt').innerHTML = `ສ້າງບັນຊີສຳເລັດ!<br>ເຮົາສົ່ງລິ້ງໄປຫາ <strong>${email}</strong> ແລ້ວ<br>ກົດລິ້ງໃນ email ເພື່ອເຂົ້າລະບົບ`;
+    _otpEmail = email;
+    document.getElementById('wait-email-txt').innerHTML = `ສ້າງບັນຊີສຳເລັດ!<br>ເຮົາສົ່ງລະຫັດ 6 ຕົວໄປຫາ <strong>${email}</strong><br>ກະລຸນາກວດ inbox (ລວມ Spam)`;
+    clearOtpBoxes();
     showWaitCard();
+    setTimeout(()=>document.getElementById('otp1').focus(),300);
   } catch (e) { showAuthMsg('reg-msg', '❌ ' + e.message, 'err'); }
-  btn.disabled = false; btn.textContent = '🚀 ສ້າງບັນຊີ & ສົ່ງລິ້ງ';
+  btn.disabled = false; btn.textContent = '🚀 ສ້າງບັນຊີ & ສົ່ງ OTP';
+}
+
+function clearOtpBoxes() {
+  ['otp1','otp2','otp3','otp4','otp5','otp6'].forEach(id => { document.getElementById(id).value = ''; });
+  const m = document.getElementById('otp-msg'); if(m) { m.textContent=''; m.className=''; }
+}
+
+function otpMove(el, nextId) {
+  // keep only last digit
+  if (el.value.length > 1) el.value = el.value.slice(-1);
+  if (el.value && nextId) document.getElementById(nextId).focus();
+  // auto-submit when all filled
+  const vals = ['otp1','otp2','otp3','otp4','otp5','otp6'].map(id=>document.getElementById(id).value);
+  if (vals.every(v=>v)) verifyOtpCode();
+}
+
+function otpKey(e, el, prevId) {
+  if (e.key === 'Backspace' && !el.value && prevId) { document.getElementById(prevId).focus(); }
+}
+
+async function verifyOtpCode() {
+  const code = ['otp1','otp2','otp3','otp4','otp5','otp6'].map(id=>document.getElementById(id).value).join('');
+  if (code.length < 6) { showAuthMsg('otp-msg','⚠️ ໃສ່ລະຫັດໃຫ້ຄົບ 6 ຕົວ','err'); return; }
+  if (!_otpEmail) { showAuthMsg('otp-msg','⚠️ ເລີ່ມໃໝ່ອີກຄັ້ງ','err'); return; }
+  const btn = document.getElementById('otp-verify-btn');
+  btn.disabled = true; btn.textContent = '⏳ ກຳລັງກວດສອບ...';
+  showAuthMsg('otp-msg','','');
+  try {
+    const data = await SB.verifyOtp(_otpEmail, code);
+    const token = data.access_token;
+    if (!token) throw new Error('ລະຫັດໝົດອາຍຸ ຫຼື ບໍ່ຖືກຕ້ອງ');
+    localStorage.setItem('sb_access_token', token);
+    if (data.refresh_token) localStorage.setItem('sb_refresh_token', data.refresh_token);
+    currentUser = data.user;
+    showMainApp(data.user);
+  } catch(e) {
+    showAuthMsg('otp-msg','❌ ' + e.message,'err');
+    clearOtpBoxes();
+    setTimeout(()=>document.getElementById('otp1').focus(),100);
+  }
+  btn.disabled = false; btn.textContent = '✅ ຢືນຢັນລະຫັດ';
+}
+
+async function resendOtp() {
+  if (!_otpEmail) return;
+  showAuthMsg('otp-msg','📨 ກຳລັງສົ່ງໃໝ່...','ok');
+  try {
+    await SB.signInMagicLink(_otpEmail);
+    clearOtpBoxes();
+    showAuthMsg('otp-msg','✅ ສົ່ງລະຫັດໃໝ່ແລ້ວ ກວດ inbox','ok');
+    setTimeout(()=>document.getElementById('otp1').focus(),300);
+  } catch(e) { showAuthMsg('otp-msg','❌ '+e.message,'err'); }
 }
 
 function showAuthMsg(id, msg, type) {
