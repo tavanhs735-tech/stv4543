@@ -192,11 +192,17 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .ni-ctr .ni-ico{width:44px;height:44px;background:linear-gradient(135deg,var(--theme-p),var(--theme-p2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 14px rgba(255,107,53,.5);margin-top:-11px}
 .ni-ctr.active::before{display:none}
 
-/* ── MODALS ── */
-.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)}
+/* ── ORDER MODAL FULL SCREEN ── */
+.ov{display:none;position:fixed;inset:0;background:var(--bg);z-index:200;flex-direction:column;max-width:480px;left:50%;transform:translateX(-50%)}
 .ov.on{display:flex}
-.sheet{background:#1c2847;border-radius:22px 22px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:18px 18px 30px;animation:slideUp .28s ease}
-@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sheet{flex:1;overflow-y:auto;padding:0 0 30px;-webkit-overflow-scrolling:touch}
+.sheet::-webkit-scrollbar{display:none}
+.order-topbar{flex-shrink:0;background:linear-gradient(135deg,#1a2744,#243058);padding:13px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--bdr)}
+.order-back-btn{width:38px;height:38px;background:rgba(255,255,255,.1);border:none;border-radius:50%;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.order-topbar-title{font-size:17px;font-weight:800;flex:1}
+.sheet-inner{padding:16px 18px 20px}
+@keyframes slideUp{from{transform:translateY(100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.ov.on{animation:slideUp .25s ease}
 .sh-handle{width:38px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:0 auto 18px}
 .sh-title{font-size:19px;font-weight:800;margin-bottom:17px}
 .fg{margin-bottom:14px}
@@ -206,7 +212,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .pay-row{display:flex;gap:11px;margin-bottom:14px}
 .qr-box{flex:1;background:var(--bg);border:1.5px solid var(--bdr);border-radius:11px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
 .qr-ttl{font-size:11px;color:var(--muted);font-weight:600}
-.qr-img-wrap{width:112px;height:112px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.qr-img-wrap{width:140px;height:140px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden}
 .qr-img-wrap img{width:100%;height:100%;object-fit:contain}
 .slip-box{flex:1;background:var(--bg);border:1.5px dashed rgba(0,212,255,.4);border-radius:11px;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;min-height:140px;position:relative;overflow:hidden}
 .slip-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}
@@ -579,12 +585,14 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
         <div class="qr-upload-wrap">
           <div class="qr-prev-sm" id="adm-qr-prev"><span style="font-size:22px">📷</span></div>
           <div style="flex:1">
-            <div class="logo-upload-btn" style="margin-bottom:0">📁 ອັບໂຫລດ QR Code
+            <div class="logo-upload-btn" style="margin-bottom:8px">📁 ອັບໂຫລດ QR Code
               <input type="file" accept="image/*" onchange="handleQrUpload(this)">
             </div>
-            <div style="font-size:11px;color:var(--muted);margin-top:6px">ອັບໂຫລດຮູບ QR ຈາກ BCEL App</div>
+            <button onclick="syncQrNow()" style="width:100%;padding:10px;background:linear-gradient(135deg,#00c853,#69f0ae);border:none;border-radius:9px;font-family:inherit;font-size:13px;font-weight:800;color:#001;cursor:pointer">🔄 Push QR ໃຫ້ທຸກເຄື່ອງດຽວນີ້</button>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px">ກົດ Push ຫຼັງອັບໂຫລດ — ທຸກໂທລະສັບຈະເຫັນ QR ໃໝ່</div>
           </div>
         </div>
+        <div id="qr-sync-status" style="margin-top:8px;font-size:12px;text-align:center"></div>
       </div>
 
       <!-- Theme colors -->
@@ -620,11 +628,14 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 </div><!-- /main-app -->
 </div><!-- /app -->
 
-<!-- ORDER MODAL -->
+<!-- ORDER MODAL (Full Screen) -->
 <div class="ov" id="orderModal">
+  <div class="order-topbar">
+    <button class="order-back-btn" onclick="closeOrder()">‹</button>
+    <div class="order-topbar-title" id="sh-title">ສັ່ງເຕີມ</div>
+  </div>
   <div class="sheet">
-    <div class="sh-handle"></div>
-    <div class="sh-title" id="sh-title">ສັ່ງເຕີມ</div>
+    <div class="sheet-inner">
     <div class="spd"><div><div class="spd-g" id="spd-g">ເກມ</div><div class="spd-p" id="spd-p">—</div></div><div class="spd-pr" id="spd-pr">—</div></div>
     <div class="fg"><label>🆔 ID ເກມ</label><input type="text" id="inp-id" placeholder="ໃສ່ Game ID"></div>
     <div class="fg"><label>👤 ຊື່ InGame</label><input type="text" id="inp-name" placeholder="ຊື່ InGame"></div>
@@ -635,7 +646,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
         <div class="qr-ttl">🏦 BCEL One<br>ສ່ອງ QR ໂອນ</div>
         <div class="qr-img-wrap" id="modal-qr-wrap">
           <img id="modal-qr-img" src="" style="display:none">
-          <svg id="modal-qr-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="background:#fff;width:106px;height:106px">
+          <svg id="modal-qr-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="background:#fff;width:136px;height:136px">
             <rect width="100" height="100" fill="white"/>
             <rect x="5" y="5" width="30" height="30" fill="#000" rx="3"/><rect x="9" y="9" width="22" height="22" fill="#fff" rx="2"/><rect x="13" y="13" width="14" height="14" fill="#000" rx="1"/>
             <rect x="65" y="5" width="30" height="30" fill="#000" rx="3"/><rect x="69" y="9" width="22" height="22" fill="#fff" rx="2"/><rect x="73" y="13" width="14" height="14" fill="#000" rx="1"/>
@@ -671,6 +682,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     </div>
     <div class="pay-note" id="pay-note-txt">💳 ໂອນ BCEL: <strong>02099853291</strong><br>ຫຼັງໂອນ ອັບໂຫລດສະລິບ ແລ້ວກົດຢືນຢັນ</div>
     <button class="sub-btn" id="sub-btn" onclick="submitOrder()">✅ ຢືນຢັນ & ສົ່ງ WhatsApp</button>
+    </div>
   </div>
 </div>
 
@@ -1041,22 +1053,44 @@ function handleQrUpload(input) {
   const reader = new FileReader();
   reader.onload = async e => {
     const src = e.target.result;
-    showLoading('ກຳລັງອັບໂຫລດ QR...');
-    // Upload to Supabase Storage so ALL users see it
-    const publicUrl = await SB.uploadQr(src);
-    hideLoading();
-    if (publicUrl) {
-      await SB.setSetting('qr_url', publicUrl);
-      applyQr(publicUrl + '&nocache=' + Date.now());
-      showToast('✅ ອັບໂຫລດ QR ສຳເລັດ! ທຸກຄົນເຫັນແລ້ວ');
-    } else {
-      // fallback: localStorage only
-      localStorage.setItem('stv_qr', src);
-      applyQr(src);
-      showToast('⚠️ ບັນທຶກ QR ສຳເລັດ (ສະເພາະເຄື່ອງນີ້)', 'err');
-    }
+    // Show preview immediately
+    applyQr(src);
+    localStorage.setItem('stv_qr', src);
+    // Update admin preview
+    const prev = document.getElementById('adm-qr-prev');
+    if (prev) prev.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:contain">`;
+    const status = document.getElementById('qr-sync-status');
+    if (status) status.innerHTML = '<span style="color:orange">⏳ ກຳລັງ sync...</span>';
+    await doSyncQr(src);
   };
   reader.readAsDataURL(file);
+}
+
+async function doSyncQr(src) {
+  const status = document.getElementById('qr-sync-status');
+  try {
+    // Save base64 directly to Supabase settings (works without Storage bucket)
+    const ok = await SB.setSetting('qr_base64', src);
+    // Also try Storage upload
+    const publicUrl = await SB.uploadQr(src);
+    if (publicUrl) await SB.setSetting('qr_url', publicUrl);
+    if (ok || publicUrl) {
+      if (status) status.innerHTML = '<span style="color:var(--ok)">✅ Sync ສຳເລັດ! ທຸກໂທລະສັບໄດ້ QR ໃໝ່</span>';
+      showToast('✅ QR Sync ທຸກໂທລະສັບສຳເລັດ!');
+    } else {
+      if (status) status.innerHTML = '<span style="color:orange">⚠️ ບັນທຶກສະເພາະເຄື່ອງນີ້ (ຕ້ອງສ້າງ settings table)</span>';
+    }
+  } catch(e) {
+    if (status) status.innerHTML = `<span style="color:var(--err)">❌ ${e.message}</span>`;
+  }
+}
+
+async function syncQrNow() {
+  const src = localStorage.getItem('stv_qr');
+  if (!src) { showToast('⚠️ ອັບໂຫລດ QR ກ່ອນ', 'err'); return; }
+  const status = document.getElementById('qr-sync-status');
+  if (status) status.innerHTML = '<span style="color:orange">⏳ ກຳລັງ sync...</span>';
+  await doSyncQr(src);
 }
 
 function applyQr(src) {
@@ -1082,11 +1116,23 @@ async function loadAppearance() {
   if (cfg.themeP)  applyThemeColor(cfg.themeP, cfg.themeP2 || cfg.themeP);
   const logo = localStorage.getItem('stv_logo');
   if (logo) applyLogo(logo);
-  // Load QR from Supabase first (shared), fallback to localStorage
-  const qrUrl = await SB.getSetting('qr_url');
-  if (qrUrl) {
-    applyQr(qrUrl);
-  } else {
+  // Load QR: try Supabase base64 first (most reliable, works without Storage)
+  try {
+    const qrB64 = await SB.getSetting('qr_base64');
+    if (qrB64) {
+      applyQr(qrB64);
+      localStorage.setItem('stv_qr', qrB64); // cache locally
+    } else {
+      // fallback: Storage URL
+      const qrUrl = await SB.getSetting('qr_url');
+      if (qrUrl) {
+        applyQr(qrUrl);
+      } else {
+        const qr = localStorage.getItem('stv_qr');
+        if (qr) applyQr(qr);
+      }
+    }
+  } catch {
     const qr = localStorage.getItem('stv_qr');
     if (qr) applyQr(qr);
   }
@@ -1269,7 +1315,6 @@ function openOrder(gk) {
   document.getElementById('orderModal').classList.add('on');
 }
 function closeOrder() { document.getElementById('orderModal').classList.remove('on'); }
-document.getElementById('orderModal').addEventListener('click', e=>{ if(e.target===document.getElementById('orderModal')) closeOrder(); });
 
 function previewSlip(input) {
   const file=input.files[0]; if(!file) return;
