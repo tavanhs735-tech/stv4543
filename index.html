@@ -805,7 +805,8 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <div class="success-title">ສັ່ງເຕີມສຳເລັດ!</div>
     <div class="success-msg">ຂໍ້ມູນຂອງທ່ານຖືກສົ່ງໃຫ້ແອດມິນແລ້ວ<br>ກະລຸນາລໍຖ້າພາຍໃນ 5 ນາທີ</div>
     <div class="success-detail" id="success-detail"></div>
-    <button class="success-close" onclick="closeSuccess()">✓ ຮັບຊາບ</button>
+    <button class="success-close" onclick="sendWhatsApp(_lastOrder)" style="background:linear-gradient(135deg,#25d366,#128c7e);margin-bottom:9px">📲 ສົ່ງ WhatsApp ຫາແອດມິນ</button>
+    <button class="success-close" onclick="closeSuccess()" style="background:var(--card);border:1px solid var(--bdr);color:var(--muted)">✓ ຮັບຊາບ</button>
   </div>
 </div>
 
@@ -1465,7 +1466,6 @@ async function submitOrder() {
     hideLoading();
     closeOrder();
     showSuccessModal(newOrder, g);
-    sendWhatsApp({...newOrder, gameName:g.name});
     loadAndRenderHistory();
     loadProfileStats();
     updatePendingBadge();
@@ -1477,7 +1477,9 @@ async function submitOrder() {
 }
 
 // ── SUCCESS MODAL ──
+let _lastOrder = null;
 function showSuccessModal(order, game) {
+  _lastOrder = {...order, gameName: game.name};
   document.getElementById('success-detail').innerHTML = `
     <div class="sd-row"><span class="sd-lbl">🎮 ເກມ</span><span class="sd-val">${order.game_name}</span></div>
     <div class="sd-row"><span class="sd-lbl">💎 Package</span><span class="sd-val">${order.pkg}</span></div>
