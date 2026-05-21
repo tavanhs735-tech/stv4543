@@ -893,14 +893,25 @@ const SB = {
     localStorage.removeItem('sb_refresh_token');
   },
   async getOrders() {
-    const r = await fetch(`${SB_URL}/rest/v1/orders?order=created_at.desc`, { headers: hdrs });
+    const r = await fetch(`${SB_URL}/rest/v1/orders?order=created_at.desc&select=*`, { headers: hdrs });
     if (!r.ok) throw new Error(await r.text());
     return r.json();
   },
   async insertOrder(data) {
-    const r = await fetch(`${SB_URL}/rest/v1/orders`, { method: 'POST', headers: hdrs, body: JSON.stringify(data) });
-    if (!r.ok) throw new Error(await r.text());
-    return r.json();
+    // Try with slip_data first; if column doesn't exist, retry without it
+    try {
+      const r = await fetch(`${SB_URL}/rest/v1/orders`, { method: 'POST', headers: hdrs, body: JSON.stringify(data) });
+      if (r.ok) return r.json();
+      const errText = await r.text();
+      // If error is about unknown column slip_data, retry without it
+      if (errText.includes('slip_data')) {
+        const { slip_data, ...dataWithout } = data;
+        const r2 = await fetch(`${SB_URL}/rest/v1/orders`, { method: 'POST', headers: hdrs, body: JSON.stringify(dataWithout) });
+        if (!r2.ok) throw new Error(await r2.text());
+        return r2.json();
+      }
+      throw new Error(errText);
+    } catch(e) { throw e; }
   },
   async updateStatus(id, status) {
     const r = await fetch(`${SB_URL}/rest/v1/orders?id=eq.${id}`, { method: 'PATCH', headers: hdrs, body: JSON.stringify({ status }) });
@@ -1474,7 +1485,8 @@ async function submitOrder() {
   try {
     const fname=`slip_${Date.now()}.jpg`;
     const slipUrl=await SB.uploadSlip(slipDataURL, fname);
-    const orderData={ game:curGame, game_name:g.name, icon:g.icon, pkg:pkg.l, price:pkg.p, game_id:id, username:name, phone:phone, status:'pending', slip_url:slipUrl||'' };
+    // Always save base64 as slip_data fallback so admin can view slip even if Storage URL fails
+    const orderData={ game:curGame, game_name:g.name, icon:g.icon, pkg:pkg.l, price:pkg.p, game_id:id, username:name, phone:phone, status:'pending', slip_url:slipUrl||'', slip_data:slipDataURL };
     const result=await SB.insertOrder(orderData);
     const newOrder=Array.isArray(result)?result[0]:result;
     hideLoading();
@@ -1638,9 +1650,10 @@ async function renderAdminDash() {
         </div>
         <div class="ao-actions">
           <button class="btn-done" onclick="askConfirmDone(${o.id},'${o.username}','${o.pkg}')" ${o.status==='done'?'disabled':''}>✅ ຢືນຢັນສຳເລັດ</button>
-          <button class="btn-slip" onclick="viewSlip('${o.slip_url||''}')" ${!o.slip_url?'disabled style="opacity:.3"':''}>🖼 ສະລິບ</button>
+          <button class="btn-slip" onclick="viewSlip('${o.slip_data||o.slip_url||''}')" ${!(o.slip_data||o.slip_url)?'disabled style="opacity:.3"':''}>🖼 ສະລິບ</button>
           <button class="btn-del" onclick="deleteOrder(${o.id})">🗑</button>
         </div>
+        ${(o.slip_data||o.slip_url)?`<div style="margin-top:8px;border-radius:10px;overflow:hidden;cursor:pointer;max-height:180px;text-align:center;background:#000" onclick="viewSlip('${o.slip_data||o.slip_url||''}')"><img src="${o.slip_data||o.slip_url}" style="max-width:100%;max-height:180px;object-fit:contain;display:block;margin:0 auto" onerror="this.parentNode.style.display='none'"></div>`:''}
       </div>`;}).join('');
   } catch(e) {
     document.getElementById('adm-order-list').innerHTML=`<div style="color:var(--err);padding:20px;text-align:center">❌ ${e.message}</div>`;
@@ -1829,6 +1842,13 @@ function viewSlip(url) {
   img.src = "";
   const old = viewer.querySelector("#sv-status");
   if (old) old.remove();
+  // If base64 data: load directly without temp Image check (avoids CORS)
+  if (url.startsWith("data:")) {
+    img.src = url;
+    img.style.display = "block";
+    viewer.classList.add("on");
+    return;
+  }
   const status = document.createElement("div");
   status.id = "sv-status";
   status.style.cssText = "color:#fff;font-size:14px;font-weight:600;text-align:center;padding:20px";
@@ -1836,9 +1856,9 @@ function viewSlip(url) {
   viewer.appendChild(status);
   viewer.classList.add("on");
   const tempImg = new Image();
+  tempImg.crossOrigin = "anonymous";
   tempImg.onload = () => { status.remove(); img.src = url; img.style.display = "block"; };
-  tempImg.onerror = () => { status.innerHTML = '❌ ໂຫລດຮູບບໍ່ສຳເລັດ<br><span style="font-size:11px;opacity:.6">ລອງກົດ Open ເບິ່ງໂດຍກົງ</span><br><a href="'+url+'" target="_blank" style="display:inline-block;margin-top:10px;background:var(--theme-p);color:#fff;padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;text-decoration:none">🔗 ເປີດຮູບ</a>'"; };
-  // Add cache-busting timestamp to force fresh load
+  tempImg.onerror = () => { status.innerHTML = '❌ ໂຫລດຮູບບໍ່ສຳເລັດ<br><span style="font-size:11px;opacity:.6">ລອງກົດ Open ເບິ່ງໂດຍກົງ</span><br><a href="'+url+'" target="_blank" style="display:inline-block;margin-top:10px;background:var(--theme-p);color:#fff;padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;text-decoration:none">🔗 ເປີດຮູບ</a>'; };
   const cacheBust = url.includes("?") ? `${url}&_t=${Date.now()}` : `${url}?_t=${Date.now()}`;
   tempImg.src = cacheBust;
 }
