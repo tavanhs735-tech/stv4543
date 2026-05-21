@@ -328,7 +328,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 <!-- ════ AUTH WRAPPER ════ -->
 <div id="auth-screen" style="height:100%;overflow-y:auto">
   <div class="auth-wrap">
-    <div class="auth-logo" id="auth-logo-ico">🎮</div>
+    <div class="auth-logo" id="auth-logo-ico"><img src="icon.png" style="width:100%;height:100%;object-fit:cover;border-radius:22px" onerror="this.style.display='none';this.parentElement.textContent='🎮'"></div>
     <div class="auth-title">STV <span>TopUp</span></div>
     <div class="auth-sub">ເຕີມເກມໄວ · ປອດໄພ · ທຸກເວລາ</div>
 
@@ -375,7 +375,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 <div id="main-app" style="display:none;height:100%;display:none;flex-direction:column">
 <div class="tb">
   <div class="tb-l">
-    <div class="tb-ico" id="tb-logo-wrap">🎮</div>
+    <div class="tb-ico" id="tb-logo-wrap"><img src="icon.png" style="width:100%;height:100%;object-fit:cover;border-radius:10px" onerror="this.style.display='none';this.parentElement.textContent='🎮'"></div>
     <div class="tb-ttl">STV <span id="tb-brand">TopUp</span></div>
   </div>
   <div class="tb-badge" id="tbBadge">ໜ້າຫຼັກ</div>
@@ -550,7 +550,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
       <div class="setting-row">
         <label>🖼 ໂລໂກ້ແອັບ</label>
         <div class="logo-prev-wrap">
-          <div class="logo-prev" id="adm-logo-prev">🎮</div>
+          <div class="logo-prev" id="adm-logo-prev"><img src="icon.png" style="width:100%;height:100%;object-fit:cover" onerror="this.style.display='none'"></div>
           <div class="logo-upload-btn">📁 ອັບໂຫລດໂລໂກ້
             <input type="file" accept="image/*" onchange="handleLogoUpload(this)">
           </div>
@@ -1436,9 +1436,9 @@ initAuth();
     return c.toDataURL('image/png');
   }
 
-  const icon192 = makeIcon(192);
-  const icon512 = makeIcon(512);
-  const icon180 = makeIcon(180); // Apple
+  const icon192 = 'icon.png';
+  const icon512 = 'icon.png';
+  const icon180 = 'icon.png';
 
   // ── Inject apple-touch-icon ──
   document.getElementById('apple-touch-icon').href = icon180;
