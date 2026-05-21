@@ -14,7 +14,8 @@
 <!-- Manifest injected by JS below -->
 <link id="pwa-manifest" rel="manifest">
 <!-- Apple touch icons (will be set by JS) -->
-<link id="apple-touch-icon" rel="apple-touch-icon">
+<link rel="apple-touch-icon" href="icon.png">
+<link id="apple-touch-icon" rel="apple-touch-icon" href="icon.png">
 <title>STV TopUp</title>
 <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -897,6 +898,11 @@ const SB = {
     if (!r.ok) throw new Error(await r.text());
     return r.json();
   },
+  async getOrdersByPhone(phone) {
+    const r = await fetch(`${SB_URL}/rest/v1/orders?phone=eq.${encodeURIComponent(phone)}&order=created_at.desc&select=*`, { headers: hdrs });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
   async insertOrder(data) {
     // Try with slip_data first; if column doesn't exist, retry without it
     try {
@@ -1482,6 +1488,8 @@ async function submitOrder() {
   const g=GAMES[curGame], pkg=g.pkgs[selPkg[curGame]];
   document.getElementById('sub-btn').disabled=true;
   showLoading('ກຳລັງອັບໂຫລດ...');
+  // บันทึกเบอร์โทรไว้ใช้ filter history
+  localStorage.setItem('stv_last_phone', phone);
   try {
     const fname=`slip_${Date.now()}.jpg`;
     const slipUrl=await SB.uploadSlip(slipDataURL, fname);
@@ -1530,9 +1538,11 @@ async function loadAndRenderHistory() {
   const el=document.getElementById('histList');
   el.innerHTML='<div class="hist-empty"><div class="icon">⏳</div><p>ກຳລັງໂຫລດ...</p></div>';
   try {
-    allOrders=await SB.getOrders();
-    renderHistory(allOrders);
-    updatePendingBadge();
+    // ดึงเฉพาะ order ของ user ปัจจุบัน (filter ด้วยเบอร์โทร)
+    const myPhone = localStorage.getItem('stv_last_phone') || '';
+    const myOrders = myPhone ? await SB.getOrdersByPhone(myPhone) : [];
+    renderHistory(myOrders);
+    updatePendingBadge(myOrders);
   } catch(e) { el.innerHTML=`<div class="hist-empty"><div class="icon">❌</div><p>${e.message}</p></div>`; }
 }
 
@@ -1559,8 +1569,8 @@ function renderHistory(orders) {
 
 async function loadProfileStats() {
   try {
-    const orders=await SB.getOrders();
-    allOrders=orders;
+    const myPhone = localStorage.getItem('stv_last_phone') || '';
+    const orders = myPhone ? await SB.getOrdersByPhone(myPhone) : await SB.getOrders();
     document.getElementById('st-orders').textContent=orders.length;
     updatePendingBadge(orders);
   } catch(e){}
