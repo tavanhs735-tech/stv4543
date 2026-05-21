@@ -166,7 +166,6 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 
 /* ── PROFILE ── */
 .prof-hdr{background:linear-gradient(135deg,#1a2744,#243058);padding:26px 18px 20px;text-align:center;border-bottom:1px solid var(--bdr)}
-.avatar{width:76px;height:76px;background:linear-gradient(135deg,var(--theme-p),var(--theme-p2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 11px;box-shadow:0 7px 22px rgba(255,107,53,.4)}
 .prof-name{font-size:19px;font-weight:800;margin-bottom:3px}
 .prof-ph{font-size:13px;color:var(--muted)}
 .pstats{display:grid;grid-template-columns:1fr 1fr 1fr;padding:14px 18px;gap:9px}
@@ -335,6 +334,26 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .rt-dot{width:8px;height:8px;background:var(--ok);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* ── AVATAR UPLOAD ── */
+.avatar-wrap{position:relative;width:76px;height:76px;margin:0 auto 11px;cursor:pointer}
+.avatar{width:76px;height:76px;background:linear-gradient(135deg,var(--theme-p),var(--theme-p2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:0 7px 22px rgba(255,107,53,.4);overflow:hidden;margin:0}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.avatar-edit{position:absolute;bottom:0;right:0;width:24px;height:24px;background:var(--theme-p);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;border:2px solid var(--bg);pointer-events:none}
+.avatar-input{position:absolute;inset:0;opacity:0;cursor:pointer;border-radius:50%;z-index:2}
+
+/* ── REFRESH BTN ── */
+.refresh-btn{background:rgba(255,255,255,.1);border:1px solid var(--bdr);color:var(--text);padding:6px 13px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:5px;transition:background .2s}
+.refresh-btn:active{background:rgba(255,255,255,.2)}
+.refresh-btn.spin svg{animation:spinR .6s linear infinite}
+@keyframes spinR{to{transform:rotate(360deg)}}
+
+/* ── GAME IMAGE UPLOAD IN ADMIN ── */
+.game-img-edit{display:flex;align-items:center;gap:10px;margin-top:8px}
+.game-img-prev{width:50px;height:50px;border-radius:11px;overflow:hidden;flex-shrink:0;background:var(--bg);border:1.5px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:22px}
+.game-img-prev img{width:100%;height:100%;object-fit:cover;border-radius:9px}
+.game-img-upload-btn{flex:1;padding:9px;background:var(--bg);border:1.5px dashed rgba(0,212,255,.4);border-radius:9px;color:var(--ac);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;text-align:center;position:relative;line-height:1.5}
+.game-img-upload-btn input{position:absolute;inset:0;opacity:0;cursor:pointer}
+
 /* Package editor */
 .pkg-edit-game{background:var(--card);border:1px solid var(--bdr);border-radius:13px;padding:14px;margin-bottom:12px}
 .pkg-edit-game-title{font-size:14px;font-weight:800;margin-bottom:11px;display:flex;align-items:center;gap:7px}
@@ -439,19 +458,19 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
   <div class="qg-row">
     <div class="qg" onclick="switchPage('topup');switchGame('MLBB')">
       <div class="qg-ico" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)">
-        <img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" data-game-img="MLBB" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#1a3a8f,#3d7ef5)">⚔️</div>
       </div><span class="qg-name">Mobile<br>Legends</span>
     </div>
     <div class="qg" onclick="switchPage('topup');switchGame('FF')">
       <div class="qg-ico" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)">
-        <img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" data-game-img="FF" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#8b1a1a,#ff4d0d)">🔥</div>
       </div><span class="qg-name">Free<br>Fire</span>
     </div>
     <div class="qg" onclick="switchPage('topup');switchGame('ROV')">
       <div class="qg-ico" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)">
-        <img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" data-game-img="ROV" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
         <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#4a0e78,#9b59b6)">👑</div>
       </div><span class="qg-name">ROV</span>
     </div>
@@ -483,18 +502,18 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 <div class="pg" id="pg-topup">
   <div class="gtabs">
     <button class="gtab active" id="tab-MLBB" onclick="switchGame('MLBB')">
-      <div class="gtab-img" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚔️</div></div>Mobile Legends
+      <div class="gtab-img" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" data-game-img="MLBB" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚔️</div></div>Mobile Legends
     </button>
     <button class="gtab" id="tab-FF" onclick="switchGame('FF')">
-      <div class="gtab-img" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)"><img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">🔥</div></div>Free Fire
+      <div class="gtab-img" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)"><img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" data-game-img="FF" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">🔥</div></div>Free Fire
     </button>
     <button class="gtab" id="tab-ROV" onclick="switchGame('ROV')">
-      <div class="gtab-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)"><img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">👑</div></div>ROV
+      <div class="gtab-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)"><img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" data-game-img="ROV" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">👑</div></div>ROV
     </button>
   </div>
   <div class="gpanel active" id="panel-MLBB">
     <div class="gdh gdh-m"><div class="gdh-bg">⚔️</div>
-      <div class="gd-img" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">⚔️</div></div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" data-game-img="MLBB" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">⚔️</div></div>
       <div class="gd-info"><h3>Mobile Legends</h3><p>Bang Bang — Moonton</p><span class="gd-badge">💎 Diamonds</span></div>
     </div>
     <div class="pkg-lbl">ເລືອກ Package</div>
@@ -503,7 +522,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
   </div>
   <div class="gpanel" id="panel-FF">
     <div class="gdh gdh-f"><div class="gdh-bg">🔥</div>
-      <div class="gd-img" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)"><img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">🔥</div></div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)"><img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" data-game-img="FF" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">🔥</div></div>
       <div class="gd-info"><h3>Free Fire</h3><p>Garena — Sea Group</p><span class="gd-badge">💎 Diamonds</span></div>
     </div>
     <div class="pkg-lbl">ເລືອກ Package</div>
@@ -512,7 +531,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
   </div>
   <div class="gpanel" id="panel-ROV">
     <div class="gdh gdh-r"><div class="gdh-bg">👑</div>
-      <div class="gd-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)"><img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">👑</div></div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)"><img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" data-game-img="ROV" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">👑</div></div>
       <div class="gd-info"><h3>ROV</h3><p>Garena — Arena of Valor</p><span class="gd-badge">🪙 Voucher</span></div>
     </div>
     <div class="pkg-lbl">ເລືອກ Package</div>
@@ -523,16 +542,26 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 
 <!-- HISTORY -->
 <div class="pg" id="pg-history">
-  <div style="padding:16px 18px 7px;font-size:17px;font-weight:800">📜 ປະຫວັດ <span class="rt-dot" style="margin-left:4px"></span></div>
+  <div style="padding:16px 18px 7px;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:space-between">
+    <span>📜 ປະຫວັດ <span class="rt-dot" style="margin-left:4px"></span></span>
+    <button class="refresh-btn" id="hist-refresh-btn" onclick="refreshHistory(this)">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+      ໂຫລດໃໝ່
+    </button>
+  </div>
   <div class="hist-list" id="histList"><div class="hist-empty"><div class="icon">⏳</div><p>ກຳລັງໂຫລດ...</p></div></div>
 </div>
 
 <!-- PROFILE -->
 <div class="pg" id="pg-profile">
   <div class="prof-hdr">
-    <div class="avatar">👤</div>
+    <div class="avatar-wrap">
+      <div class="avatar" id="prof-avatar"><span id="prof-avatar-ico">👤</span></div>
+      <div class="avatar-edit">📷</div>
+      <input type="file" accept="image/*" class="avatar-input" onchange="handleAvatarUpload(this)" title="ອັບໂຫລດຮູບໂປຣໄຟລ໌">
+    </div>
     <div class="prof-name" id="prof-email-display">ຜູ້ໃຊ້</div>
-    <div class="prof-ph">STV TopUp Member</div>
+    <div class="prof-ph">STV TopUp Member · <span style="color:var(--theme-p);font-size:11px">ກົດຮູບເພື່ອປ່ຽນ</span></div>
   </div>
   <div class="pstats">
     <div class="psc"><div class="sv" id="st-orders">—</div><div class="sl">ຄຳສັ່ງ</div></div>
@@ -564,7 +593,13 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
   <div id="adm-dash" style="display:none;padding:14px 18px 20px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div style="font-size:17px;font-weight:800">🛠 Admin <span class="rt-dot"></span></div>
-      <button onclick="logoutAdmin()" style="background:rgba(255,68,68,.15);border:1px solid var(--err);color:var(--err);padding:6px 14px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">ອອກ</button>
+      <div style="display:flex;gap:8px">
+        <button class="refresh-btn" id="adm-refresh-btn" onclick="refreshAdminDash(this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
+          ໂຫລດໃໝ່
+        </button>
+        <button onclick="logoutAdmin()" style="background:rgba(255,68,68,.15);border:1px solid var(--err);color:var(--err);padding:6px 14px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">ອອກ</button>
+      </div>
     </div>
     <div class="stats-bar">
       <div class="sb"><div class="sv" id="a-total">—</div><div class="sl">ທັງໝົດ</div></div>
@@ -575,6 +610,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
       <button class="at active" onclick="switchAdmTab('orders',this)">📋 ຄຳສັ່ງ</button>
       <button class="at" onclick="switchAdmTab('users',this)">👥 ຜູ້ໃຊ້</button>
       <button class="at" onclick="switchAdmTab('packages',this)">💎 Packages</button>
+      <button class="at" onclick="switchAdmTab('gameimages',this)">🖼 ຮູບເກມ</button>
       <button class="at" onclick="switchAdmTab('appearance',this)">🎨 ຮູບລັກ</button>
       <button class="at" onclick="switchAdmTab('settings',this)">⚙️ ຕັ້ງຄ່າ</button>
     </div>
@@ -590,6 +626,13 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
       <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">💡 ແກ້ໄຂລາຄາ ແລະ ຊື່ Package ໄດ້ທີ່ນີ້ — ທຸກຜູ້ໃຊ້ຈະເຫັນຂໍ້ມູນໃໝ່ທັນທີ</div>
       <div id="pkg-editor-list"></div>
       <button class="save-btn" onclick="savePackages()" style="width:100%;padding:14px;font-size:15px;margin-top:8px">💾 ບັນທຶກ Packages ທັງໝົດ</button>
+    </div>
+
+    <!-- Game Images tab -->
+    <div class="adm-pg" id="adm-gameimages">
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.6">🖼 ອັບໂຫລດ/ປ່ຽນຮູບເກມ — ຮູບຈະສະແດງໃນທຸກໜ້າ ແລະ ທຸກເຄື່ອງ</div>
+      <div id="game-img-editor"></div>
+      <button class="save-btn" onclick="saveGameImages()" style="width:100%;padding:14px;font-size:15px;margin-top:8px">💾 ບັນທຶກຮູບເກມທັງໝົດ</button>
     </div>
     <div class="adm-pg" id="adm-appearance">
       <!-- Logo -->
@@ -943,8 +986,10 @@ async function showMainApp(user) {
   // show email in profile
   const emailShort = user.email ? user.email.split('@')[0] : 'ຜູ້ໃຊ້';
   document.getElementById('prof-email-display').textContent = user.email || 'ຜູ້ໃຊ້';
+  loadAvatar();
   loadProfileStats();
   await loadAppearance();
+  await loadGameImages();
 }
 
 // ── EMAIL MEMORY ──
@@ -1159,7 +1204,7 @@ function saveAppearance() {
   showToast('🎨 ບັນທຶກຮູບລັກສຳເລັດ!');
 }
 
-async function loadAppearance() {
+async async function loadAppearance() {
   const cfg = getCfg();
   if (cfg.themeP)  applyThemeColor(cfg.themeP, cfg.themeP2 || cfg.themeP);
   const logo = localStorage.getItem('stv_logo');
@@ -1501,6 +1546,7 @@ function switchAdmTab(tab, btn) {
   btn.classList.add('active');
   if(tab==='users') loadAdminUsers();
   if(tab==='packages') buildPackageEditor();
+  if(tab==='gameimages') buildGameImageEditor();
 }
 
 async function renderAdminDash() {
@@ -1566,18 +1612,26 @@ function closeConfirmDone() { document.getElementById('confirmDoneModal').classL
 
 async function doMarkDone() {
   if(!pendingConfirmId) return;
+  const idToMark = pendingConfirmId;
   closeConfirmDone();
   showLoading('ກຳລັງອັບເດດ...');
   try {
-    await SB.updateStatus(pendingConfirmId,'done');
+    await SB.updateStatus(idToMark,'done');
     hideLoading();
     showToast('✅ ຢືນຢັນສຳເລັດ!');
-    renderAdminDash();
+    // Ask if want to delete order
+    setTimeout(() => {
+      if(confirm('ຢືນຢັນສຳເລັດແລ້ວ — ຕ້ອງການລົບ Order ນີ້ອອກບໍ? (ຄລິກ OK ລົບ, Cancel ເກັບໄວ້)')) {
+        deleteOrder(idToMark, true);
+      } else {
+        renderAdminDash();
+      }
+    }, 300);
   } catch(e){ hideLoading(); showToast('❌ '+e.message,'err'); }
 }
 
-async function deleteOrder(id) {
-  if(!confirm('ລົບຄຳສັ່ງນີ້?')) return;
+async function deleteOrder(id, skipConfirm) {
+  if(!skipConfirm && !confirm('ລົບຄຳສັ່ງນີ້?')) return;
   showLoading('ກຳລັງລົບ...');
   try { await SB.deleteOrder(id); hideLoading(); showToast('🗑 ລົບສຳເລັດ'); renderAdminDash(); }
   catch(e){ hideLoading(); showToast('❌ '+e.message,'err'); }
@@ -1726,7 +1780,214 @@ setInterval(()=>{
   loadProfileStats();
 }, 12000);
 
-// ── INIT ──
+// ══════════════════════════════════════
+// AVATAR (Profile Photo)
+// ══════════════════════════════════════
+function handleAvatarUpload(input) {
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    localStorage.setItem('stv_avatar', src);
+    applyAvatar(src);
+    showToast('✅ ປ່ຽນຮູບໂປຣໄຟລ໌ສຳເລັດ!');
+  };
+  reader.readAsDataURL(file);
+}
+
+function applyAvatar(src) {
+  const av = document.getElementById('prof-avatar');
+  if (!av) return;
+  av.innerHTML = src
+    ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    : '<span id="prof-avatar-ico">👤</span>';
+}
+
+function loadAvatar() {
+  const src = localStorage.getItem('stv_avatar');
+  if (src) applyAvatar(src);
+}
+
+// ══════════════════════════════════════
+// REFRESH BUTTONS
+// ══════════════════════════════════════
+async function refreshHistory(btn) {
+  if (btn) { btn.classList.add('spin'); btn.disabled = true; }
+  await loadAndRenderHistory();
+  if (btn) { btn.classList.remove('spin'); btn.disabled = false; }
+}
+
+async function refreshAdminDash(btn) {
+  if (btn) { btn.classList.add('spin'); btn.disabled = true; }
+  await renderAdminDash();
+  if (btn) { btn.classList.remove('spin'); btn.disabled = false; }
+}
+
+// ══════════════════════════════════════
+// GAME IMAGES — Admin editor
+// ══════════════════════════════════════
+const GAME_IMGS_KEY = 'game_images';
+
+function buildGameImageEditor() {
+  const el = document.getElementById('game-img-editor');
+  if (!el) return;
+  el.innerHTML = '';
+  Object.keys(GAMES).forEach(gk => {
+    const g = GAMES[gk];
+    const pending = localStorage.getItem('stv_gimg_pending_' + gk);
+    const synced  = localStorage.getItem('stv_gimg_url_' + gk);
+    const preview = pending || synced || localStorage.getItem('stv_gimg_' + gk) || '';
+    const statusHtml = pending
+      ? `<div style="font-size:11px;color:orange;margin-top:4px">⏳ ຍັງບໍ່ໄດ້ sync — ກົດ "ບັນທຶກ"</div>`
+      : synced
+        ? `<div style="font-size:11px;color:var(--ok);margin-top:4px">✅ Sync ແລ້ວ — ທຸກເຄື່ອງເຫັນ</div>`
+        : `<div style="font-size:11px;color:var(--muted);margin-top:4px">ຍັງບໍ່ໄດ້ upload</div>`;
+    const block = document.createElement('div');
+    block.className = 'setting-row';
+    block.innerHTML = `
+      <label>${g.icon} ${g.name}</label>
+      <div class="game-img-edit">
+        <div class="game-img-prev" id="gimgprev-${gk}">
+          ${preview
+            ? `<img src="${preview}" style="width:100%;height:100%;object-fit:cover;border-radius:9px" onerror="this.style.display='none'">`
+            : `<span>${g.icon}</span>`}
+        </div>
+        <div style="flex:1">
+          <div class="game-img-upload-btn">📁 ເລືອກຮູບ ${g.name}
+            <input type="file" accept="image/*" data-gk="${gk}" onchange="handleGameImgUpload(this)">
+          </div>
+          ${statusHtml}
+          <div style="font-size:11px;color:var(--muted);margin-top:4px;line-height:1.4">ຮູບ square ດີທີ່ສຸດ (128×128px+)</div>
+        </div>
+      </div>`;
+    el.appendChild(block);
+  });
+}
+
+function handleGameImgUpload(input) {
+  const gk = input.dataset.gk;
+  const file = input.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const src = e.target.result;
+    // Preview immediately in editor
+    const prev = document.getElementById('gimgprev-' + gk);
+    if (prev) prev.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`;
+    // Mark as pending (will upload to Storage on Save)
+    localStorage.setItem('stv_gimg_pending_' + gk, src);
+    localStorage.setItem('stv_gimg_' + gk, src); // for preview use
+    // Apply to page immediately (local preview)
+    applyGameImages({ [gk]: src });
+    showToast('📸 ເລືອກຮູບ ' + GAMES[gk].name + ' ແລ້ວ — ກົດ "ບັນທຶກ" ເພື່ອ sync ທຸກເຄື່ອງ');
+  };
+  reader.readAsDataURL(file);
+}
+
+async function saveGameImages() {
+  // Upload each changed game image to Supabase Storage, save only URLs in settings
+  showLoading('ກຳລັງ upload ຮູບເກມ...');
+  const urlMap = {};
+  let anyFail = false;
+
+  for (const gk of Object.keys(GAMES)) {
+    const b64 = localStorage.getItem('stv_gimg_pending_' + gk); // pending = newly uploaded, not yet synced
+    if (!b64) {
+      // Keep existing URL if any
+      const existing = localStorage.getItem('stv_gimg_url_' + gk);
+      if (existing) urlMap[gk] = existing;
+      continue;
+    }
+    // Upload to Storage
+    try {
+      const blob = await (await fetch(b64)).blob();
+      const filename = `game_${gk.toLowerCase()}_${Date.now()}.jpg`;
+      let url = null;
+      for (const method of ['PUT','POST']) {
+        const r = await fetch(`${SB_URL}/storage/v1/object/slips/${filename}`, {
+          method,
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': blob.type, 'x-upsert': 'true' },
+          body: blob
+        });
+        if (r.ok) { url = `${SB_URL}/storage/v1/object/public/slips/${filename}`; break; }
+      }
+      if (url) {
+        urlMap[gk] = url;
+        localStorage.setItem('stv_gimg_url_' + gk, url);
+        localStorage.removeItem('stv_gimg_pending_' + gk); // mark as synced
+      } else {
+        // Storage failed — fall back to saving base64 in settings (small images only)
+        urlMap[gk] = b64;
+        anyFail = true;
+      }
+    } catch(e) {
+      anyFail = true;
+    }
+  }
+
+  // Save URL map to settings (URLs only — tiny size)
+  const ok = await SB.setSetting(GAME_IMGS_KEY, JSON.stringify(urlMap));
+  hideLoading();
+  if (ok) {
+    applyGameImages(urlMap);
+    showToast(anyFail ? '⚠️ ບາງຮູບ upload ຜິດພາດ ແຕ່ບັນທຶກສ່ວນໃຫ່ຍສຳເລັດ' : '✅ ຮູບເກມ sync ທຸກເຄື່ອງສຳເລັດ!');
+  } else {
+    // Supabase settings failed — apply locally only
+    applyGameImages(urlMap);
+    showToast('⚠️ ບັນທຶກສະເພາະເຄື່ອງນີ້ — ກວດສອບ Supabase settings table', 'err');
+  }
+}
+
+async function loadGameImages() {
+  try {
+    const raw = await SB.getSetting(GAME_IMGS_KEY);
+    if (raw) {
+      const imgs = JSON.parse(raw);
+      // cache URLs locally
+      Object.keys(imgs).forEach(gk => {
+        if (imgs[gk]) {
+          localStorage.setItem('stv_gimg_url_' + gk, imgs[gk]);
+          localStorage.setItem('stv_gimg_' + gk, imgs[gk]); // keep legacy key for editor preview
+        }
+      });
+      applyGameImages(imgs);
+      return;
+    }
+  } catch(e) {}
+  // fallback: apply from localStorage cached URLs
+  const local = {};
+  Object.keys(GAMES).forEach(gk => {
+    const url = localStorage.getItem('stv_gimg_url_' + gk) || localStorage.getItem('stv_gimg_' + gk);
+    if (url) local[gk] = url;
+  });
+  if (Object.keys(local).length) applyGameImages(local);
+}
+
+function applyGameImages(imgs) {
+  Object.keys(imgs).forEach(gk => {
+    const src = imgs[gk];
+    if (!src) return;
+    // Update ALL img elements with data-game-img attribute (covers Home, TopUp tabs, game panels)
+    document.querySelectorAll(`img[data-game-img="${gk}"]`).forEach(img => {
+      img.src = src;
+      img.style.display = 'block';
+      img.onerror = null; // remove error handler so it doesn't hide again
+      // Hide the emoji fallback sibling
+      const fb = img.nextElementSibling;
+      if (fb) fb.style.display = 'none';
+    });
+    // Also update admin game-img-editor preview if open
+    const prev = document.getElementById('gimgprev-' + gk);
+    if (prev) {
+      const existing = prev.querySelector('img');
+      if (existing) existing.src = src;
+      else prev.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover;border-radius:9px">`;
+    }
+  });
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
 initAuth();
 
 
