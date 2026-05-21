@@ -682,20 +682,14 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
       <div class="setting-row"><label>🔐 ປ່ຽນລະຫັດ Admin</label><input type="password" id="cfg-pw" placeholder="ລະຫັດໃໝ່..."></div>
       <div class="setting-row"><label>🏦 ຂໍ້ຄວາມໃນ Modal ຊຳລະ</label><textarea id="cfg-payinfo" rows="3"></textarea></div>
       <button class="save-btn" onclick="saveSettings()">💾 ບັນທຶກ</button>
-
       <!-- TermDDS shortcut — Admin only -->
       <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--bdr)">
         <div style="font-size:11px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px">🔗 ເຕີມເກມ (ເວັບຫຼັກ)</div>
-        <a href="https://www.termdds.com" target="_blank" rel="noopener"
-          style="display:flex;align-items:center;gap:13px;background:linear-gradient(135deg,rgba(0,180,120,.13),rgba(0,212,180,.07));border:1.5px solid rgba(0,200,140,.4);border-radius:14px;padding:13px 15px;text-decoration:none;color:var(--text);cursor:pointer;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 16px rgba(0,180,120,.2)"
-          onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
+        <a href="https://www.termdds.com" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:13px;background:linear-gradient(135deg,rgba(0,180,120,.13),rgba(0,212,180,.07));border:1.5px solid rgba(0,200,140,.4);border-radius:14px;padding:13px 15px;text-decoration:none;color:var(--text);cursor:pointer;box-shadow:0 4px 16px rgba(0,180,120,.2)" onmousedown="this.style.transform='scale(.97)'" onmouseup="this.style.transform='scale(1)'" ontouchstart="this.style.transform='scale(.97)'" ontouchend="this.style.transform='scale(1)'">
           <div style="width:52px;height:52px;flex-shrink:0;border-radius:13px;overflow:hidden;background:linear-gradient(135deg,#00b47a,#00d4a0);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,180,120,.45)">
             <img src="https://www.google.com/s2/favicons?sz=64&domain=termdds.com" alt="TermDDS" style="width:34px;height:34px;border-radius:7px" onerror="this.style.display='none';this.parentNode.innerHTML='🎮'">
           </div>
-          <div style="flex:1">
-            <div style="font-size:14px;font-weight:800;margin-bottom:3px">TermDDS</div>
-            <div style="font-size:11px;color:var(--muted)">termdds.com · ກົດເພື່ອເຕີມເກມ</div>
-          </div>
+          <div style="flex:1"><div style="font-size:14px;font-weight:800;margin-bottom:3px">TermDDS</div><div style="font-size:11px;color:var(--muted)">termdds.com · ກົດເພື່ອເຕີມເກມ</div></div>
           <div style="color:rgba(0,212,180,.9);font-size:20px;font-weight:700">→</div>
         </a>
       </div>
@@ -929,13 +923,16 @@ const SB = {
   async uploadSlip(dataURL, filename) {
     try {
       const blob = await (await fetch(dataURL)).blob();
-      const r = await fetch(`${SB_URL}/storage/v1/object/slips/${filename}`, {
-        method: 'POST',
-        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': blob.type },
-        body: blob
-      });
-      if (!r.ok) return null;
-      return `${SB_URL}/storage/v1/object/public/slips/${filename}`;
+      // Try POST first (new file), then PUT (upsert if exists)
+      for (const method of ['POST', 'PUT']) {
+        const r = await fetch(`${SB_URL}/storage/v1/object/slips/${filename}`, {
+          method,
+          headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': blob.type || 'image/jpeg', 'x-upsert': 'true' },
+          body: blob
+        });
+        if (r.ok) return `${SB_URL}/storage/v1/object/public/slips/${filename}?t=${Date.now()}`;
+      }
+      return null;
     } catch { return null; }
   },
   async uploadQr(dataURL) {
@@ -1824,8 +1821,35 @@ function openBcelModal() { document.getElementById('bcelModal').classList.add('o
 function closeBcelModal() { document.getElementById('bcelModal').classList.remove('on'); }
 
 // ── SLIP VIEWER ──
-function viewSlip(url) { if(!url) return; document.getElementById('sv-img').src=url; document.getElementById('slipViewer').classList.add('on'); }
-function closeSlipViewer() { document.getElementById('slipViewer').classList.remove('on'); }
+function viewSlip(url) {
+  if(!url) { showToast("⚠️ ບໍ່ມີສະລິບ","err"); return; }
+  const viewer = document.getElementById("slipViewer");
+  const img = document.getElementById("sv-img");
+  img.style.display = "none";
+  img.src = "";
+  const old = viewer.querySelector("#sv-status");
+  if (old) old.remove();
+  const status = document.createElement("div");
+  status.id = "sv-status";
+  status.style.cssText = "color:#fff;font-size:14px;font-weight:600;text-align:center;padding:20px";
+  status.textContent = "⏳ ກຳລັງໂຫລດຮູບ...";
+  viewer.appendChild(status);
+  viewer.classList.add("on");
+  const tempImg = new Image();
+  tempImg.onload = () => { status.remove(); img.src = url; img.style.display = "block"; };
+  tempImg.onerror = () => { status.innerHTML = '❌ ໂຫລດຮູບບໍ່ສຳເລັດ<br><span style="font-size:11px;opacity:.6">ລອງກົດ Open ເບິ່ງໂດຍກົງ</span><br><a href="'+url+'" target="_blank" style="display:inline-block;margin-top:10px;background:var(--theme-p);color:#fff;padding:8px 18px;border-radius:9px;font-size:13px;font-weight:700;text-decoration:none">🔗 ເປີດຮູບ</a>'"; };
+  // Add cache-busting timestamp to force fresh load
+  const cacheBust = url.includes("?") ? `${url}&_t=${Date.now()}` : `${url}?_t=${Date.now()}`;
+  tempImg.src = cacheBust;
+}
+function closeSlipViewer() {
+  const viewer = document.getElementById("slipViewer");
+  viewer.classList.remove("on");
+  const old = viewer.querySelector("#sv-status");
+  if (old) old.remove();
+  document.getElementById("sv-img").style.display = "none";
+  document.getElementById("sv-img").src = "";
+}
 
 // ── LOADING / TOAST ──
 function showLoading(txt) { document.getElementById('loading-txt').textContent=txt||'...'; document.getElementById('loadingOv').classList.add('on'); }
