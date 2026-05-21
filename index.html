@@ -980,11 +980,11 @@ async function showMainApp(user) {
   // show email in profile
   const emailShort = user.email ? user.email.split('@')[0] : 'ຜູ້ໃຊ້';
   document.getElementById('prof-email-display').textContent = user.email || 'ຜູ້ໃຊ້';
-  // Load profile photo
-  const savedPhoto = localStorage.getItem('stv_profile_photo');
-  if (savedPhoto) setTimeout(() => applyProfilePhoto(savedPhoto), 100);
+  // Load profile photo (from localStorage first, then Supabase)
   loadProfileStats();
   await loadAppearance();
+  // Load profile photo after user is set (needs currentUser.id)
+  setTimeout(() => loadProfilePhoto(), 200);
 }
 
 // ── EMAIL MEMORY ──
@@ -1644,10 +1644,9 @@ async function loadAdminUsers() {
   const el = document.getElementById('adm-user-list');
   el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">⏳ ໂຫລດ...</div>';
   try {
-    // Pull all orders (no RLS filter — anon key sees all if RLS allows)
     const orders = await SB.getOrders();
 
-    // Also try to fetch auth users list via admin endpoint
+    // Try auth users list (requires service_role key — will fail with anon key)
     let authUsers = [];
     try {
       const r = await fetch(`${SB_URL}/auth/v1/admin/users?page=1&per_page=100`, {
@@ -1655,11 +1654,11 @@ async function loadAdminUsers() {
       });
       if (r.ok) {
         const d = await r.json();
-        authUsers = d.users || [];
+        authUsers = Array.isArray(d.users) ? d.users : (Array.isArray(d) ? d : []);
       }
     } catch(e) {}
 
-    // Build user map from orders (always available)
+    // Build user map from orders
     const userMap = {};
     orders.forEach(o => {
       const key = o.phone || o.game_id || o.username;
@@ -1669,11 +1668,11 @@ async function loadAdminUsers() {
     });
     const orderUsers = Object.values(userMap);
 
-    // Build auth user rows
+    // Auth user rows
     const authRows = authUsers.map(u => {
       const email = u.email || '—';
       const created = u.created_at ? new Date(u.created_at).toLocaleDateString('lo-LA') : '—';
-      const lastSign = u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('lo-LA') : '—';
+      const lastSign = u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('lo-LA') : 'ບໍ່ເຄີຍ';
       return `
         <div class="user-row">
           <div class="user-ava" style="background:linear-gradient(135deg,#3d7ef5,#5b9aff);font-size:14px">📧</div>
@@ -1685,7 +1684,7 @@ async function loadAdminUsers() {
         </div>`;
     }).join('');
 
-    // Build order-based user rows
+    // Order-based user rows
     const orderRows = orderUsers.map(u => {
       const count = u.orders.length;
       const done = u.orders.filter(o => o.status === 'done').length;
@@ -1701,25 +1700,32 @@ async function loadAdminUsers() {
         </div>`;
     }).join('');
 
-    if (!authRows && !orderRows) {
-      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">📭 ຍັງບໍ່ມີຜູ້ໃຊ້</div>';
+    // Check if truly empty
+    const hasAuthUsers = authUsers.length > 0;
+    const hasOrderUsers = orderUsers.length > 0;
+
+    if (!hasAuthUsers && !hasOrderUsers) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">📭 ຍັງບໍ່ມີຜູ້ໃຊ້ / ຄຳສັ່ງ</div>';
       return;
     }
 
     el.innerHTML = `
-      ${authUsers.length ? `
+      ${hasAuthUsers ? `
         <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
           🔐 ບັນຊີລະບົບ (${authUsers.length} ຄົນ)
         </div>
         ${authRows}
-        <div style="height:1px;background:var(--bdr);margin:14px 0"></div>` : ''}
+        <div style="height:1px;background:var(--bdr);margin:14px 0"></div>` :
+        `<div style="font-size:11px;color:var(--muted);background:rgba(255,165,0,.08);border:1px solid rgba(255,165,0,.25);border-radius:9px;padding:10px 13px;margin-bottom:12px;line-height:1.6">
+          ⚠️ <strong>ບໍ່ສາມາດໂຫລດບັນຊີ Auth ໄດ້</strong><br>
+          ຕ້ອງໃຊ້ <code>service_role</code> key ໃນ Supabase — ປັດຈຸບັນໃຊ້ anon key ຢູ່<br>
+          ດ້ານລຸ່ມສະແດງລູກຄ້າຈາກ Orders ແທນ
+        </div>`}
       <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
         🛒 ລູກຄ້າຈາກ Orders (${orderUsers.length} ຄົນ)
       </div>
-      ${orderRows || '<div style="color:var(--muted);font-size:13px;padding:12px">ຍັງບໍ່ມີ order</div>'}
-      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6">
-        ກົດທີ່ລູກຄ້າເພື່ອເບິ່ງ orders ຂອງເຂົາ
-      </div>`;
+      ${hasOrderUsers ? orderRows : '<div style="color:var(--muted);font-size:13px;padding:12px">ຍັງບໍ່ມີ order</div>'}
+      ${hasOrderUsers ? `<div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6">ກົດທີ່ລູກຄ້າເພື່ອເບິ່ງ orders ຂອງເຂົາ</div>` : ''}`;
 
   } catch(e) {
     el.innerHTML = `<div style="color:var(--err);padding:20px;text-align:center">❌ ${e.message}</div>`;
@@ -1779,11 +1785,15 @@ function showToast(msg,type) { const t=document.getElementById('toast'); t.textC
 function handleProfilePhotoUpload(input) {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = async function(e) {
     const src = e.target.result;
     localStorage.setItem('stv_profile_photo', src);
     applyProfilePhoto(src);
     showToast('📸 ບັນທຶກຮູບໂປຣໄຟລສຳເລັດ!');
+    try {
+      const uid = currentUser ? currentUser.id : 'default';
+      await SB.setSetting('profile_photo_' + uid, src);
+    } catch(ex) {}
   };
   reader.readAsDataURL(file);
 }
@@ -1792,10 +1802,38 @@ function applyProfilePhoto(src) {
   const av = document.getElementById('prof-avatar');
   if (!av) return;
   const icon = av.querySelector('#prof-avatar-icon');
-  if (icon) icon.style.display = 'none';
   let img = av.querySelector('img.prof-av-img');
-  if (!img) { img = document.createElement('img'); img.className = 'prof-av-img'; img.style.cssText = 'width:100%;height:100%;object-fit:cover'; av.appendChild(img); }
+  if (!img) {
+    img = document.createElement('img');
+    img.className = 'prof-av-img';
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:50%;position:absolute;inset:0;display:none';
+    av.style.position = 'relative';
+    av.appendChild(img);
+  }
+  img.onload = function() {
+    img.style.display = 'block';
+    if (icon) icon.style.display = 'none';
+  };
+  img.onerror = function() {
+    img.style.display = 'none';
+    if (icon) icon.style.display = '';
+  };
   img.src = src;
+}
+
+async function loadProfilePhoto() {
+  const local = localStorage.getItem('stv_profile_photo');
+  if (local) applyProfilePhoto(local);
+  if (currentUser) {
+    try {
+      const uid = currentUser.id;
+      const cloud = await SB.getSetting('profile_photo_' + uid);
+      if (cloud && cloud !== local) {
+        localStorage.setItem('stv_profile_photo', cloud);
+        applyProfilePhoto(cloud);
+      }
+    } catch(ex) {}
+  }
 }
 
 // ── REFRESH HISTORY ──
@@ -1872,32 +1910,57 @@ function applyGameImages(imgs) {
   Object.keys(imgs).forEach(gk => {
     const src = imgs[gk];
     if (!src) return;
-    // Update all img elements for this game
-    const selectors = [
-      `#tab-${gk} .gtab-img img`,
-      `#panel-${gk} .gd-img img`,
-    ];
-    selectors.forEach(sel => {
-      document.querySelectorAll(sel).forEach(img => {
-        img.src = src;
+    if (GAMES[gk]) GAMES[gk].imgSrc = src;
+
+    // Helper: set image safely (works on Android)
+    function setImg(container, src, fallbackEl) {
+      if (!container) return;
+      let img = container.querySelector('img.game-custom-img');
+      if (!img) {
+        img = document.createElement('img');
+        img.className = 'game-custom-img';
+        img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block;border-radius:inherit';
+        container.insertBefore(img, container.firstChild);
+      }
+      // Use onload/onerror for Android reliability
+      img.onload = function() {
         img.style.display = 'block';
-        const fb = img.nextElementSibling;
-        if (fb) fb.style.display = 'none';
-      });
-    });
-    // Update quick-game icons on home page
-    document.querySelectorAll(`.qg-ico img`).forEach(img => {
-      // find parent qg that links to this game
-      const qg = img.closest('.qg');
-      if (qg && qg.getAttribute('onclick') && qg.getAttribute('onclick').includes(`'${gk}'`)) {
-        img.src = src;
-        img.style.display = 'block';
-        const fb = img.nextElementSibling;
-        if (fb) fb.style.display = 'none';
+        if (fallbackEl) fallbackEl.style.display = 'none';
+        // Also hide original remote img if present
+        const origImg = container.querySelector('img:not(.game-custom-img)');
+        if (origImg) origImg.style.display = 'none';
+      };
+      img.onerror = function() {
+        img.style.display = 'none';
+        if (fallbackEl) fallbackEl.style.display = 'flex';
+      };
+      img.src = src;
+    }
+
+    // Tab icon
+    const tabImg = document.querySelector(`#tab-${gk} .gtab-img`);
+    if (tabImg) {
+      const fb = tabImg.querySelector('.gfb');
+      setImg(tabImg, src, fb);
+    }
+
+    // Panel header image
+    const panelImg = document.querySelector(`#panel-${gk} .gd-img`);
+    if (panelImg) {
+      const fb = panelImg.querySelector('.gd-fb');
+      setImg(panelImg, src, fb);
+    }
+
+    // Quick-game icons on home page
+    document.querySelectorAll('.qg').forEach(qg => {
+      if (qg.getAttribute('onclick') && qg.getAttribute('onclick').includes(`'${gk}'`)) {
+        const ico = qg.querySelector('.qg-ico');
+        if (ico) {
+          const fb = ico.querySelector('.qg-fb');
+          setImg(ico, src, fb);
+        }
       }
     });
-    // Update history/admin bgMap icons too
-    if (GAMES[gk]) GAMES[gk].imgSrc = src;
   });
 }
 
