@@ -356,6 +356,12 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .spinner{width:44px;height:44px;border:4px solid rgba(255,107,53,.3);border-top-color:var(--theme-p);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* Avatar upload button */
+.avatar-wrap{position:relative;display:inline-block;margin-bottom:11px}
+.avatar-wrap .avatar{margin:0}
+.avatar-edit-btn{position:absolute;bottom:0;right:0;width:28px;height:28px;background:var(--theme-p);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,.4);z-index:2;overflow:hidden}
+.avatar-edit-btn input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:3;width:100%;height:100%}
+
 /* REFRESH BTN */
 .refresh-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;margin:10px 18px 0;background:linear-gradient(135deg,var(--theme-p),var(--theme-p2));border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:14px;font-weight:800;cursor:pointer;width:calc(100% - 36px);justify-content:center;box-shadow:0 5px 15px rgba(255,107,53,.35)}
 .refresh-btn:active{transform:scale(.97)}
@@ -567,7 +573,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
   </div>
   <div class="mlist">
     <div class="mi" onclick="switchPage('history')"><span class="mi-ico">🕐</span><span class="mi-lbl">ປະຫວັດທຳລາຍການ</span><span class="mi-arr">›</span></div>
-    <div class="mi"><span class="mi-ico">💳</span><span class="mi-lbl">ວິທີຊຳລະ (BCEL)</span><span class="mi-arr">›</span></div>
+    <div class="mi" onclick="openBcelModal()"><span class="mi-ico">💳</span><span class="mi-lbl">ວິທີຊຳລະ (BCEL)</span><span class="mi-arr">›</span></div>
     <div class="mi" onclick="doSignOut()"><span class="mi-ico">🚪</span><span class="mi-lbl">ອອກຈາກລະບົບ</span><span class="mi-arr">›</span></div>
     <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
     <div class="mi" style="border-color:rgba(255,68,68,.3)" onclick="openAdminLogin()">
@@ -587,7 +593,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <div id="adm-err" class="adm-err">❌ ລະຫັດຜ່ານບໍ່ຖືກ</div>
     <button class="sub-btn" style="margin-top:12px" onclick="doAdminLogin()">🔓 ເຂົ້າ</button>
   </div>
-  <div id="adm-dash" style="display:none;padding:14px 18px 20px">
+  <div id="adm-dash" style="display:none;padding:14px 18px 100px">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <div style="font-size:17px;font-weight:800">🛠 Admin <span class="rt-dot"></span></div>
       <div style="display:flex;gap:8px">
@@ -768,6 +774,27 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
       <button class="sub-btn" id="sub-btn" onclick="submitOrder()">✅ ຢືນຢັນ & ສົ່ງ WhatsApp</button>
 
     </div>
+  </div>
+</div>
+
+<!-- BCEL PAYMENT INFO MODAL -->
+<div class="success-modal" id="bcelModal" onclick="if(event.target===this)closeBcelModal()">
+  <div class="success-card" style="max-width:360px">
+    <span class="success-icon">🏦</span>
+    <div class="success-title" style="color:var(--ac)">ວິທີຊຳລະ BCEL</div>
+    <div class="success-detail" style="text-align:left;margin-bottom:16px">
+      <div class="sd-row"><span class="sd-lbl">🏦 ທະນາຄານ</span><span class="sd-val">BCEL One</span></div>
+      <div class="sd-row"><span class="sd-lbl">📱 ເບີ</span><span class="sd-val">02099853291</span></div>
+      <div class="sd-row" style="margin-top:6px"><span class="sd-lbl">📋 ຂັ້ນຕອນ</span></div>
+      <div style="font-size:12px;color:var(--text);line-height:1.9;margin-top:4px">
+        1️⃣ ເປີດ BCEL One App<br>
+        2️⃣ ກົດ "ໂອນເງິນ" ຫຼື ສ່ອງ QR Code<br>
+        3️⃣ ໃສ່ຈຳນວນເງິນທີ່ຕ້ອງຊຳລະ<br>
+        4️⃣ ຢືນຢັນການໂອນ<br>
+        5️⃣ Screenshot ສະລິບ ອັບໂຫລດ
+      </div>
+    </div>
+    <button class="success-close" onclick="closeBcelModal()">✓ ເຂົ້າໃຈແລ້ວ</button>
   </div>
 </div>
 
@@ -1372,6 +1399,7 @@ function switchPage(page) {
   document.querySelector('.scr').scrollTop = 0;
   if (page==='history') loadAndRenderHistory();
   if (page==='profile') loadProfileStats();
+  if (page==='topup') loadPackagesFromCloud();
   if (page==='admin' && adminLoggedIn) renderAdminDash();
 }
 
@@ -1772,6 +1800,10 @@ function saveSettings() {
   showToast('💾 ບັນທຶກສຳເລັດ!');
 }
 
+// ── BCEL MODAL ──
+function openBcelModal() { document.getElementById('bcelModal').classList.add('on'); }
+function closeBcelModal() { document.getElementById('bcelModal').classList.remove('on'); }
+
 // ── SLIP VIEWER ──
 function viewSlip(url) { if(!url) return; document.getElementById('sv-img').src=url; document.getElementById('slipViewer').classList.add('on'); }
 function closeSlipViewer() { document.getElementById('slipViewer').classList.remove('on'); }
@@ -2055,9 +2087,9 @@ initAuth();
     return c.toDataURL('image/png');
   }
 
-  const icon192 = 'icon.png';
-  const icon512 = 'icon.png';
-  const icon180 = 'icon.png';
+  const icon192 = makeIcon(192);
+  const icon512 = makeIcon(512);
+  const icon180 = makeIcon(180);
 
   // ── Inject apple-touch-icon ──
   document.getElementById('apple-touch-icon').href = icon180;
