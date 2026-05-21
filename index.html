@@ -1584,22 +1584,123 @@ async function deleteOrder(id) {
 }
 
 async function loadAdminUsers() {
-  const el=document.getElementById('adm-user-list');
-  el.innerHTML='<div style="text-align:center;padding:30px;color:var(--muted)">⏳ ໂຫລດ...</div>';
+  const el = document.getElementById('adm-user-list');
+  el.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">⏳ ໂຫລດ...</div>';
   try {
-    // Get unique users from orders
-    const orders=await SB.getOrders();
-    const userMap={};
-    orders.forEach(o=>{ if(!userMap[o.phone]) userMap[o.phone]={phone:o.phone,name:o.username,count:0,last:o.created_at}; userMap[o.phone].count++; });
-    const users=Object.values(userMap);
-    if(!users.length){ el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">📭 ຍັງບໍ່ມີຜູ້ໃຊ້</div>'; return; }
-    el.innerHTML=users.map(u=>`
-      <div class="user-row">
-        <div class="user-ava">👤</div>
-        <div class="user-info"><strong>${u.name}</strong><span>${u.phone} · ${u.count} ຄຳສັ່ງ</span></div>
-        <span class="user-badge ${u.count===1?'ub-new':'ub-reg'}">${u.count===1?'ໃໝ່':'ສະໝາຊິກ'}</span>
-      </div>`).join('');
-  } catch(e){ el.innerHTML=`<div style="color:var(--err);padding:20px;text-align:center">❌ ${e.message}</div>`; }
+    // Pull all orders (no RLS filter — anon key sees all if RLS allows)
+    const orders = await SB.getOrders();
+
+    // Also try to fetch auth users list via admin endpoint
+    let authUsers = [];
+    try {
+      const r = await fetch(`${SB_URL}/auth/v1/admin/users?page=1&per_page=100`, {
+        headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+      });
+      if (r.ok) {
+        const d = await r.json();
+        authUsers = d.users || [];
+      }
+    } catch(e) {}
+
+    // Build user map from orders (always available)
+    const userMap = {};
+    orders.forEach(o => {
+      const key = o.phone || o.game_id || o.username;
+      if (!userMap[key]) userMap[key] = { phone: o.phone, name: o.username, game_id: o.game_id, orders: [], totalSpent: 0 };
+      userMap[key].orders.push(o);
+      userMap[key].totalSpent += (o.price || 0);
+    });
+    const orderUsers = Object.values(userMap);
+
+    // Build auth user rows
+    const authRows = authUsers.map(u => {
+      const email = u.email || '—';
+      const created = u.created_at ? new Date(u.created_at).toLocaleDateString('lo-LA') : '—';
+      const lastSign = u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString('lo-LA') : '—';
+      return `
+        <div class="user-row">
+          <div class="user-ava" style="background:linear-gradient(135deg,#3d7ef5,#5b9aff);font-size:14px">📧</div>
+          <div class="user-info">
+            <strong>${email}</strong>
+            <span>ສະໝັກ: ${created} · ເຂົ້າລ່າສຸດ: ${lastSign}</span>
+          </div>
+          <span class="user-badge ub-reg">Auth</span>
+        </div>`;
+    }).join('');
+
+    // Build order-based user rows
+    const orderRows = orderUsers.map(u => {
+      const count = u.orders.length;
+      const done = u.orders.filter(o => o.status === 'done').length;
+      const spent = u.totalSpent.toLocaleString();
+      return `
+        <div class="user-row" style="cursor:pointer" onclick="filterOrdersByUser('${u.phone}')">
+          <div class="user-ava">${count >= 3 ? '⭐' : '👤'}</div>
+          <div class="user-info">
+            <strong>${u.name || '—'}</strong>
+            <span>${u.phone || '—'} · ${count} ຄຳສັ່ງ · ✅${done} · ${spent} ₭</span>
+          </div>
+          <span class="user-badge ${count === 1 ? 'ub-new' : 'ub-reg'}">${count === 1 ? 'ໃໝ່' : 'ປະຈຳ'}</span>
+        </div>`;
+    }).join('');
+
+    if (!authRows && !orderRows) {
+      el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">📭 ຍັງບໍ່ມີຜູ້ໃຊ້</div>';
+      return;
+    }
+
+    el.innerHTML = `
+      ${authUsers.length ? `
+        <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
+          🔐 ບັນຊີລະບົບ (${authUsers.length} ຄົນ)
+        </div>
+        ${authRows}
+        <div style="height:1px;background:var(--bdr);margin:14px 0"></div>` : ''}
+      <div style="font-size:11px;font-weight:700;color:var(--muted);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
+        🛒 ລູກຄ້າຈາກ Orders (${orderUsers.length} ຄົນ)
+      </div>
+      ${orderRows || '<div style="color:var(--muted);font-size:13px;padding:12px">ຍັງບໍ່ມີ order</div>'}
+      <div style="font-size:11px;color:var(--muted);text-align:center;margin-top:12px;line-height:1.6">
+        ກົດທີ່ລູກຄ້າເພື່ອເບິ່ງ orders ຂອງເຂົາ
+      </div>`;
+
+  } catch(e) {
+    el.innerHTML = `<div style="color:var(--err);padding:20px;text-align:center">❌ ${e.message}</div>`;
+  }
+}
+
+function filterOrdersByUser(phone) {
+  // Switch to orders tab and filter
+  document.querySelectorAll('.at').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.adm-pg').forEach(p => p.classList.remove('active'));
+  document.getElementById('adm-orders').classList.add('active');
+  document.querySelector('.at').classList.add('active');
+  // Filter orders by phone
+  const filtered = allOrders.filter(o => o.phone === phone);
+  const bgMap = { MLBB:'linear-gradient(135deg,#1a3a8f,#3d7ef5)', FF:'linear-gradient(135deg,#8b1a1a,#ff4d0d)', ROV:'linear-gradient(135deg,#4a0e78,#9b59b6)' };
+  const el = document.getElementById('adm-order-list');
+  const name = filtered[0]?.username || phone;
+  el.innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+      <div style="font-size:14px;font-weight:800">👤 ${name} — ${phone}</div>
+      <button onclick="renderAdminDash()" style="background:var(--bg);border:1px solid var(--bdr);color:var(--muted);padding:5px 12px;border-radius:8px;font-family:inherit;font-size:12px;cursor:pointer">✕ ລ້າງ filter</button>
+    </div>
+    ${filtered.length === 0 ? '<div style="color:var(--muted);text-align:center;padding:30px">📭 ບໍ່ມີ orders</div>' :
+      filtered.map(o => `
+        <div class="ao" id="ao-${o.id}">
+          <div class="ao-top">
+            <div class="ao-ico" style="background:${bgMap[o.game]||'#333'}">${o.icon||'🎮'}</div>
+            <div class="ao-info"><strong>${o.game_name} — ${o.pkg}</strong><span>${new Date(o.created_at).toLocaleString('lo-LA')}</span></div>
+            <div style="text-align:right"><div class="ao-price">${(o.price||0).toLocaleString()} ₭</div>
+              <span class="ao-stat ${o.status==='done'?'s-ok':'s-pend'}">${o.status==='done'?'✓ ສຳເລັດ':'⏳ ລໍຖ້າ'}</span>
+            </div>
+          </div>
+          <div class="ao-actions">
+            <button class="btn-done" onclick="askConfirmDone(${o.id},'${o.username}','${o.pkg}')" ${o.status==='done'?'disabled':''}>✅ ຢືນຢັນ</button>
+            <button class="btn-slip" onclick="viewSlip('${o.slip_url||''}')" ${!o.slip_url?'disabled style="opacity:.3"':''}>🖼 ສະລິບ</button>
+            <button class="btn-del" onclick="deleteOrder(${o.id})">🗑</button>
+          </div>
+        </div>`).join('')}`;
 }
 
 function saveSettings() {
