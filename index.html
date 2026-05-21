@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>STV TopUp</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#ff6b35;--p2:#ff9a3f;--ac:#00d4ff;--gold:#ffd700;
+  --bg:#0f1629;--card:#1c2847;--card2:#243058;
+  --text:#e8eaf6;--muted:#7986cb;--bdr:rgba(100,130,255,.15);
+  --nh:70px;--ok:#00e676;--err:#ff4444;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:var(--bg);color:var(--text)}
+#app{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;position:relative}
+.tb{flex-shrink:0;background:linear-gradient(135deg,#1a2744,#243058);padding:13px 18px 11px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);z-index:20}
+.tb-l{display:flex;align-items:center;gap:10px}
+.tb-ico{width:34px;height:34px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;box-shadow:0 4px 12px rgba(255,107,53,.4)}
+.tb-ttl{font-size:19px;font-weight:800;letter-spacing:1px}.tb-ttl span{color:var(--p)}
+.tb-badge{background:rgba(0,212,255,.15);border:1px solid var(--ac);color:var(--ac);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.scr{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nh)+10px);-webkit-overflow-scrolling:touch}
+.scr::-webkit-scrollbar{display:none}
+.pg{display:none}.pg.active{display:block}
+/* HERO */
+.hero{background:linear-gradient(135deg,#1a2744,#0f1629 60%,#1a0d2e);padding:22px 18px 18px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:180px;height:180px;background:radial-gradient(circle,rgba(255,107,53,.2),transparent 70%);border-radius:50%}
+.hero-t{position:relative;z-index:2;margin-bottom:14px}
+.hero-t h2{font-size:21px;font-weight:800;line-height:1.3;margin-bottom:5px}
+.hero-t h2 span{color:var(--p)}
+.hero-t p{font-size:13px;color:var(--muted)}
+.pills{display:flex;gap:7px;flex-wrap:wrap;position:relative;z-index:2}
+.pill{background:rgba(255,107,53,.15);border:1px solid rgba(255,107,53,.4);color:var(--p2);font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px}
+.pill.b{background:rgba(0,212,255,.1);border-color:rgba(0,212,255,.3);color:var(--ac)}
+.sh{padding:18px 18px 9px;display:flex;align-items:center;justify-content:space-between}
+.sh-t{font-size:15px;font-weight:700}
+.sh-m{font-size:12px;color:var(--p);cursor:pointer}
+.qg-row{display:flex;gap:12px;padding:4px 18px 14px;overflow-x:auto}
+.qg-row::-webkit-scrollbar{display:none}
+.qg{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer}
+.qg-ico{width:62px;height:62px;border-radius:15px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.4);transition:transform .2s}
+.qg:active .qg-ico{transform:scale(.9)}
+.qg-ico img{width:100%;height:100%;object-fit:cover}
+.qg-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:28px}
+.qg-name{font-size:10px;font-weight:600;color:var(--muted);text-align:center}
+.bnr-row{display:flex;gap:11px;padding:4px 18px 14px;overflow-x:auto}
+.bnr-row::-webkit-scrollbar{display:none}
+.bnr{flex-shrink:0;width:210px;height:105px;border-radius:13px;overflow:hidden;position:relative;display:flex;align-items:flex-end;padding:12px;cursor:pointer}
+.bm{background:linear-gradient(135deg,#1a3a8f,#3d7ef5)}
+.bf{background:linear-gradient(135deg,#8b1a1a,#ff4d0d)}
+.br{background:linear-gradient(135deg,#4a0e78,#9b59b6)}
+.bnr-bg{position:absolute;right:8px;top:50%;transform:translateY(-50%);font-size:52px;opacity:.22}
+.bnr-lbl{position:relative;z-index:1}
+.bnr-lbl strong{display:block;font-size:14px;font-weight:800}
+.bnr-lbl span{font-size:11px;opacity:.75}
+.steps{padding:0 18px 20px;display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.step{background:var(--card);border-radius:11px;padding:13px;border:1px solid var(--bdr);display:flex;align-items:flex-start;gap:9px}
+.sn{flex-shrink:0;width:25px;height:25px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800}
+.si strong{font-size:12px;font-weight:700;display:block;margin-bottom:1px}
+.si span{font-size:11px;color:var(--muted);line-height:1.3}
+.contact-box{margin:0 18px 22px;background:var(--card);border:1px solid var(--bdr);border-radius:14px;padding:16px}
+.contact-box h4{font-size:14px;font-weight:800;margin-bottom:11px}
+.contact-grid{display:flex;gap:9px;flex-wrap:wrap}
+.cg-item{flex:1;min-width:90px;border-radius:9px;padding:11px;text-align:center}
+.cg-item .ci{font-size:20px;margin-bottom:5px}
+.cg-item .cl{font-size:10px;color:var(--muted)}
+.cg-item .cv{font-size:12px;font-weight:700}
+/* TOPUP */
+.gtabs{display:flex;gap:8px;padding:14px 18px 7px;overflow-x:auto}
+.gtabs::-webkit-scrollbar{display:none}
+.gtab{flex-shrink:0;display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:11px;border:2px solid var(--bdr);background:var(--card);cursor:pointer;transition:all .2s;font-family:inherit;color:var(--muted);font-size:13px;font-weight:600}
+.gtab.active{border-color:var(--p);background:rgba(255,107,53,.12);color:var(--text)}
+.gtab-img{width:26px;height:26px;border-radius:7px;overflow:hidden}
+.gtab-img img{width:100%;height:100%;object-fit:cover}
+.gfb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:15px}
+.gpanel{display:none;padding:10px 18px 16px}.gpanel.active{display:block}
+.gdh{border-radius:16px;padding:18px;margin-bottom:14px;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
+.gdh-m{background:linear-gradient(135deg,#0d1f5c,#2a5fd1)}
+.gdh-f{background:linear-gradient(135deg,#5a0d00,#d13c1a)}
+.gdh-r{background:linear-gradient(135deg,#2e0a50,#7b3fb5)}
+.gdh-bg{position:absolute;right:-10px;top:50%;transform:translateY(-50%);font-size:76px;opacity:.13}
+.gd-img{width:58px;height:58px;border-radius:13px;overflow:hidden;box-shadow:0 5px 14px rgba(0,0,0,.5);flex-shrink:0}
+.gd-img img{width:100%;height:100%;object-fit:cover}
+.gd-fb{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:32px}
+.gd-info{position:relative;z-index:1}
+.gd-info h3{font-size:19px;font-weight:800}
+.gd-info p{font-size:12px;opacity:.7;margin-top:1px}
+.gd-badge{background:rgba(255,255,255,.14);border-radius:6px;padding:2px 8px;font-size:10px;display:inline-block;margin-top:3px}
+.pkg-lbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:9px;letter-spacing:.4px;text-transform:uppercase}
+.pkgs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
+.pkg{background:var(--card);border:2px solid var(--bdr);border-radius:13px;padding:13px 11px;cursor:pointer;transition:all .2s;position:relative}
+.pkg.sel{border-color:var(--p);background:rgba(255,107,53,.1)}
+.pkg-ico{font-size:20px;margin-bottom:5px;display:block}
+.pkg-amt{font-size:15px;font-weight:800;display:block;margin-bottom:3px}
+.pkg-prc{font-size:13px;color:var(--p);font-weight:700}
+.pkg-hot{position:absolute;top:-7px;right:7px;background:var(--gold);color:#333;font-size:10px;font-weight:800;padding:2px 6px;border-radius:9px}
+.order-btn{width:100%;padding:14px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 7px 18px rgba(255,107,53,.4);transition:transform .15s}
+.order-btn:active{transform:scale(.97)}
+/* HISTORY */
+.hist-list{padding:10px 18px}
+.hist-empty{padding:55px 18px;text-align:center}
+.hist-empty .icon{font-size:55px;margin-bottom:14px;opacity:.4}
+.hist-empty p{color:var(--muted);font-size:14px}
+.hi{background:var(--card);border:1px solid var(--bdr);border-radius:13px;padding:13px;margin-bottom:9px;display:flex;align-items:center;gap:11px}
+.hi-ico{width:42px;height:42px;border-radius:11px;overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px}
+.hi-info{flex:1}
+.hi-info strong{font-size:13px;font-weight:700;display:block}
+.hi-info span{font-size:11px;color:var(--muted)}
+.hi-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+.hstat{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px}
+.s-ok{background:rgba(0,230,118,.15);color:var(--ok)}
+.s-pend{background:rgba(255,165,0,.15);color:orange}
+.hi-slip{font-size:10px;color:var(--ac);cursor:pointer}
+/* PROFILE */
+.prof-hdr{background:linear-gradient(135deg,#1a2744,#243058);padding:26px 18px 20px;text-align:center;border-bottom:1px solid var(--bdr)}
+.avatar{width:76px;height:76px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;margin:0 auto 11px;box-shadow:0 7px 22px rgba(255,107,53,.4)}
+.prof-name{font-size:19px;font-weight:800;margin-bottom:3px}
+.prof-ph{font-size:13px;color:var(--muted)}
+.pstats{display:grid;grid-template-columns:1fr 1fr 1fr;padding:14px 18px;gap:9px}
+.psc{background:var(--card);border-radius:11px;padding:13px 9px;text-align:center;border:1px solid var(--bdr)}
+.psc .sv{font-size:20px;font-weight:800;color:var(--p)}
+.psc .sl{font-size:10px;color:var(--muted);margin-top:2px}
+.mlist{padding:0 18px 22px}
+.mi{background:var(--card);border:1px solid var(--bdr);border-radius:11px;padding:13px 15px;margin-bottom:7px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:background .2s}
+.mi:active{background:var(--card2)}
+.mi-ico{font-size:21px}
+.mi-lbl{flex:1;font-size:14px;font-weight:600}
+.mi-arr{color:var(--muted);font-size:17px}
+.mi-badge{background:var(--err);color:#fff;font-size:10px;font-weight:800;padding:2px 7px;border-radius:10px}
+/* BOTTOM NAV */
+.bnav{flex-shrink:0;position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:var(--nh);background:#1c2847;border-top:1px solid var(--bdr);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;position:relative}
+.ni-ico{font-size:21px;transition:transform .2s}
+.ni-lbl{font-size:10px;font-weight:600;color:var(--muted);transition:color .2s}
+.ni.active .ni-lbl{color:var(--p)}
+.ni.active .ni-ico{transform:scale(1.15)}
+.ni.active::before{content:'';position:absolute;top:0;left:20%;right:20%;height:3px;background:var(--p);border-radius:0 0 4px 4px}
+.ni-ctr .ni-ico{width:44px;height:44px;background:linear-gradient(135deg,var(--p),var(--p2));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 4px 14px rgba(255,107,53,.5);margin-top:-11px}
+.ni-ctr.active::before{display:none}
+/* MODALS */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:200;align-items:flex-end;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)}
+.ov.on{display:flex}
+.sheet{background:#1c2847;border-radius:22px 22px 0 0;width:100%;max-height:92vh;overflow-y:auto;padding:18px 18px 30px;animation:slideUp .28s ease}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.sh-handle{width:38px;height:4px;background:rgba(255,255,255,.18);border-radius:2px;margin:0 auto 18px}
+.sh-title{font-size:19px;font-weight:800;margin-bottom:17px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:11px;padding:12px 13px;color:var(--text);font-family:inherit;font-size:14px;outline:none;transition:border-color .2s;resize:none}
+.fg input:focus,.fg textarea:focus{border-color:var(--p)}
+.pay-row{display:flex;gap:11px;margin-bottom:14px}
+.qr-box{flex:1;background:var(--bg);border:1.5px solid var(--bdr);border-radius:11px;padding:12px;display:flex;flex-direction:column;align-items:center;gap:7px;text-align:center}
+.qr-box .qr-ttl{font-size:11px;color:var(--muted);font-weight:600}
+.qr-img{width:110px;height:110px;background:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.qr-img svg{width:106px;height:106px}
+.slip-box{flex:1;background:var(--bg);border:1.5px dashed rgba(0,212,255,.4);border-radius:11px;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;min-height:140px;position:relative;overflow:hidden}
+.slip-box input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;z-index:2}
+.slip-ico{font-size:28px;opacity:.6}
+.slip-ttl{font-size:11px;color:var(--ac);font-weight:600;text-align:center}
+#slip-prev{width:100%;height:100%;object-fit:cover;border-radius:7px;display:none;position:absolute;inset:0;z-index:1}
+.spd{background:rgba(255,107,53,.1);border:1.5px solid var(--p);border-radius:11px;padding:11px 13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.spd-g{font-size:12px;color:var(--muted)}
+.spd-p{font-size:15px;font-weight:800}
+.spd-pr{font-size:15px;font-weight:800;color:var(--p)}
+.pay-note{background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);border-radius:11px;padding:11px 13px;font-size:12px;color:var(--ac);margin-bottom:14px;line-height:1.7}
+.sub-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 7px 18px rgba(255,107,53,.35)}
+.sub-btn:disabled{opacity:.5;cursor:not-allowed}
+/* ADMIN */
+.adm-login{padding:30px 18px}
+.adm-login h3{font-size:20px;font-weight:800;margin-bottom:6px}
+.adm-login p{font-size:13px;color:var(--muted);margin-bottom:22px}
+.adm-err{color:var(--err);font-size:13px;margin-top:8px;display:none}
+.adm-pg{display:none;padding:0}.adm-pg.active{display:block}
+.adm-tabs{display:flex;gap:8px;margin-bottom:16px;overflow-x:auto}
+.adm-tabs::-webkit-scrollbar{display:none}
+.at{flex-shrink:0;padding:7px 16px;border-radius:10px;border:2px solid var(--bdr);background:var(--card);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;color:var(--muted);transition:all .2s}
+.at.active{border-color:var(--p);background:rgba(255,107,53,.12);color:var(--text)}
+.ao{background:var(--card);border:1px solid var(--bdr);border-radius:13px;padding:14px;margin-bottom:10px}
+.ao-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.ao-ico{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.ao-info{flex:1}
+.ao-info strong{font-size:14px;font-weight:700;display:block}
+.ao-info span{font-size:11px;color:var(--muted)}
+.ao-price{font-size:15px;font-weight:800;color:var(--p)}
+.ao-detail{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;margin-bottom:10px}
+.ao-detail div{background:var(--bg);border-radius:7px;padding:6px 9px}
+.ao-detail .lbl{font-size:10px;color:var(--muted);margin-bottom:2px}
+.ao-detail .val{font-weight:700;word-break:break-all}
+.ao-actions{display:flex;gap:8px}
+.btn-done{flex:1;padding:9px;background:rgba(0,230,118,.15);border:1px solid var(--ok);color:var(--ok);border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.btn-done:disabled{opacity:.4;cursor:default}
+.btn-del{padding:9px 14px;background:rgba(255,68,68,.12);border:1px solid var(--err);color:var(--err);border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.btn-slip{flex:1;padding:9px;background:rgba(0,212,255,.1);border:1px solid var(--ac);color:var(--ac);border-radius:9px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}
+.ao-stat{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px}
+.stats-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:16px}
+.sb{background:var(--card);border-radius:11px;padding:12px;text-align:center;border:1px solid var(--bdr)}
+.sb .sv{font-size:22px;font-weight:800;color:var(--p)}
+.sb .sl{font-size:10px;color:var(--muted)}
+.setting-row{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:14px;margin-bottom:9px}
+.setting-row label{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:7px}
+.setting-row input,.setting-row textarea{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:9px;padding:11px 12px;color:var(--text);font-family:inherit;font-size:14px;outline:none;resize:none}
+.setting-row input:focus,.setting-row textarea:focus{border-color:var(--p)}
+.save-btn{padding:10px 24px;background:linear-gradient(135deg,var(--p),var(--p2));color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer}
+/* RT dot */
+.rt-dot{width:8px;height:8px;background:var(--ok);border-radius:50%;display:inline-block;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+/* SLIP VIEWER */
+.slip-viewer{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:999;align-items:center;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%)}
+.slip-viewer.on{display:flex}
+.slip-viewer img{max-width:92%;max-height:80vh;border-radius:12px;object-fit:contain}
+.sv-close{position:absolute;top:20px;right:20px;background:rgba(255,255,255,.15);border:none;color:#fff;font-size:22px;width:40px;height:40px;border-radius:50%;cursor:pointer}
+/* LOADING */
+.loading-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:800;align-items:center;justify-content:center;max-width:480px;left:50%;transform:translateX(-50%);flex-direction:column;gap:14px}
+.loading-overlay.on{display:flex}
+.spinner{width:44px;height:44px;border:4px solid rgba(255,107,53,.3);border-top-color:var(--p);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* TOAST */
+.toast{position:fixed;top:75px;left:50%;transform:translateX(-50%);background:var(--ok);color:#001;padding:10px 22px;border-radius:28px;font-weight:700;font-size:13px;z-index:900;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;max-width:340px;text-align:center}
+.toast.on{opacity:1}
+.toast.err{background:var(--err);color:#fff}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="tb">
+  <div class="tb-l">
+    <div class="tb-ico">🎮</div>
+    <div class="tb-ttl">STV <span>TopUp</span></div>
+  </div>
+  <div class="tb-badge" id="tbBadge">ໜ້າຫຼັກ</div>
+</div>
+<div class="scr">
+
+<!-- HOME -->
+<div class="pg active" id="pg-home">
+  <div class="hero">
+    <div class="hero-t">
+      <h2>ເຕີມເກມ <span>ໄວ</span> ທຸກເວລາ ✨</h2>
+      <p>Mobile Legends · Free Fire · ROV · ຮັບໄດ້ທັນທີ</p>
+    </div>
+    <div class="pills">
+      <span class="pill">⚡ ໄວ &lt; 5 ນາທີ</span>
+      <span class="pill b">🛡 ປອດໄພ 100%</span>
+      <span class="pill">💰 ລາຄາດີ</span>
+    </div>
+  </div>
+  <div class="sh"><span class="sh-t">🎮 ເລືອກເກມ</span><span class="sh-m" onclick="switchPage('topup')">ເບິ່ງທັງໝົດ ›</span></div>
+  <div class="qg-row">
+    <div class="qg" onclick="switchPage('topup');switchGame('MLBB')">
+      <div class="qg-ico" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)">
+        <img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#1a3a8f,#3d7ef5)">⚔️</div>
+      </div>
+      <span class="qg-name">Mobile<br>Legends</span>
+    </div>
+    <div class="qg" onclick="switchPage('topup');switchGame('FF')">
+      <div class="qg-ico" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)">
+        <img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#8b1a1a,#ff4d0d)">🔥</div>
+      </div>
+      <span class="qg-name">Free<br>Fire</span>
+    </div>
+    <div class="qg" onclick="switchPage('topup');switchGame('ROV')">
+      <div class="qg-ico" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)">
+        <img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#4a0e78,#9b59b6)">👑</div>
+      </div>
+      <span class="qg-name">ROV</span>
+    </div>
+  </div>
+  <div class="sh"><span class="sh-t">🔥 ໂປຣໂມຊັ່ນ</span></div>
+  <div class="bnr-row">
+    <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ໃຫ້ທຸກ Package</span></div></div>
+    <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
+    <div class="bnr br" onclick="switchPage('topup');switchGame('ROV')"><div class="bnr-bg">👑</div><div class="bnr-lbl"><strong>ROV</strong><span>Coins ເຕີມທັນທີ</span></div></div>
+  </div>
+  <div class="sh"><span class="sh-t">📋 ຂັ້ນຕອນ</span></div>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><div class="si"><strong>ເລືອກເກມ</strong><span>ເລືອກ Package</span></div></div>
+    <div class="step"><div class="sn">2</div><div class="si"><strong>ໃສ່ ID</strong><span>ໃສ່ ID ເກມ</span></div></div>
+    <div class="step"><div class="sn">3</div><div class="si"><strong>ສ່ອງ QR</strong><span>ຊຳລະ BCEL</span></div></div>
+    <div class="step"><div class="sn">4</div><div class="si"><strong>ສຳເລັດ ✓</strong><span>ໄດ້ຮັບທັນທີ</span></div></div>
+  </div>
+  <div class="contact-box">
+    <h4>📞 ຕິດຕໍ່ພວກເຮົາ</h4>
+    <div class="contact-grid">
+      <div class="cg-item" style="background:rgba(255,107,53,.08)"><div class="ci">☎️</div><div class="cl">ໂທ</div><div class="cv">02099853291</div></div>
+      <div class="cg-item" style="background:rgba(0,212,255,.06)"><div class="ci">📘</div><div class="cl">Facebook</div><div class="cv" style="font-size:11px">sokthavee<br>Phimmachan</div></div>
+      <div class="cg-item" style="background:rgba(255,215,0,.06)"><div class="ci">🏦</div><div class="cl">ທະນາຄານ</div><div class="cv">BCEL One</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPUP -->
+<div class="pg" id="pg-topup">
+  <div class="gtabs">
+    <button class="gtab active" id="tab-MLBB" onclick="switchGame('MLBB')">
+      <div class="gtab-img" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)">
+        <img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚔️</div>
+      </div>Mobile Legends
+    </button>
+    <button class="gtab" id="tab-FF" onclick="switchGame('FF')">
+      <div class="gtab-img" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)">
+        <img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">🔥</div>
+      </div>Free Fire
+    </button>
+    <button class="gtab" id="tab-ROV" onclick="switchGame('ROV')">
+      <div class="gtab-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)">
+        <img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">👑</div>
+      </div>ROV
+    </button>
+  </div>
+  <div class="gpanel active" id="panel-MLBB">
+    <div class="gdh gdh-m"><div class="gdh-bg">⚔️</div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#1a3a8f,#3d7ef5)">
+        <img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">⚔️</div>
+      </div>
+      <div class="gd-info"><h3>Mobile Legends</h3><p>Bang Bang — Moonton</p><span class="gd-badge">💎 Diamonds</span></div>
+    </div>
+    <div class="pkg-lbl">ເລືອກ Package</div>
+    <div class="pkgs" id="pkgs-MLBB"></div>
+    <button class="order-btn" onclick="openOrder('MLBB')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
+  </div>
+  <div class="gpanel" id="panel-FF">
+    <div class="gdh gdh-f"><div class="gdh-bg">🔥</div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#8b1a1a,#ff4d0d)">
+        <img src="https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">🔥</div>
+      </div>
+      <div class="gd-info"><h3>Free Fire</h3><p>Garena — Sea Group</p><span class="gd-badge">💎 Diamonds</span></div>
+    </div>
+    <div class="pkg-lbl">ເລືອກ Package</div>
+    <div class="pkgs" id="pkgs-FF"></div>
+    <button class="order-btn" onclick="openOrder('FF')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
+  </div>
+  <div class="gpanel" id="panel-ROV">
+    <div class="gdh gdh-r"><div class="gdh-bg">👑</div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)">
+        <img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">👑</div>
+      </div>
+      <div class="gd-info"><h3>ROV</h3><p>Garena — Arena of Valor</p><span class="gd-badge">🪙 Voucher</span></div>
+    </div>
+    <div class="pkg-lbl">ເລືອກ Package</div>
+    <div class="pkgs" id="pkgs-ROV"></div>
+    <button class="order-btn" onclick="openOrder('ROV')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="pg" id="pg-history">
+  <div style="padding:16px 18px 7px;font-size:17px;font-weight:800">📜 ປະຫວັດການເຕີມ <span class="rt-dot" style="margin-left:6px"></span></div>
+  <div class="hist-list" id="histList"><div class="hist-empty"><div class="icon">⏳</div><p>ກຳລັງໂຫລດ...</p></div></div>
+</div>
+
+<!-- PROFILE -->
+<div class="pg" id="pg-profile">
+  <div class="prof-hdr">
+    <div class="avatar">👤</div>
+    <div class="prof-name">ຜູ້ໃຊ້ STV</div>
+    <div class="prof-ph">02099853291</div>
+  </div>
+  <div class="pstats">
+    <div class="psc"><div class="sv" id="st-orders">—</div><div class="sl">ຄຳສັ່ງ</div></div>
+    <div class="psc"><div class="sv">3</div><div class="sl">ເກມ</div></div>
+    <div class="psc"><div class="sv">⭐5</div><div class="sl">ຄະແນນ</div></div>
+  </div>
+  <div class="mlist">
+    <div class="mi" onclick="switchPage('history')"><span class="mi-ico">🕐</span><span class="mi-lbl">ປະຫວັດທຳລາຍການ</span><span class="mi-arr">›</span></div>
+    <div class="mi"><span class="mi-ico">💳</span><span class="mi-lbl">ວິທີຊຳລະ (BCEL)</span><span class="mi-arr">›</span></div>
+    <div class="mi"><span class="mi-ico">📞</span><span class="mi-lbl">ຕິດຕໍ່ Support</span><span class="mi-arr">›</span></div>
+    <div style="height:1px;background:var(--bdr);margin:8px 0"></div>
+    <div class="mi" style="border-color:rgba(255,68,68,.3)" onclick="openAdminLogin()">
+      <span class="mi-ico">🔐</span>
+      <span class="mi-lbl">ແອດມິນ ຫຼັງບ້ານ</span>
+      <span class="mi-badge" id="pending-badge" style="display:none">0</span>
+      <span class="mi-arr">›</span>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div class="pg" id="pg-admin">
+  <div id="adm-login-wrap" class="adm-login">
+    <h3>🔐 Admin Login</h3>
+    <p>ໃສ່ລະຫັດຜ່ານເພື່ອເຂົ້າຫຼັງບ້ານ</p>
+    <div class="fg"><label>ລະຫັດຜ່ານ</label><input type="password" id="adm-pw-inp" placeholder="ໃສ່ລະຫັດ..." onkeydown="if(event.key==='Enter')doAdminLogin()"></div>
+    <div id="adm-err" class="adm-err">❌ ລະຫັດຜ່ານບໍ່ຖືກຕ້ອງ</div>
+    <button class="sub-btn" style="margin-top:12px" onclick="doAdminLogin()">🔓 ເຂົ້າລະບົບ</button>
+  </div>
+  <div id="adm-dash" style="display:none;padding:14px 18px 20px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <div style="font-size:17px;font-weight:800">🛠 Admin Panel <span class="rt-dot"></span></div>
+      <button onclick="logoutAdmin()" style="background:rgba(255,68,68,.15);border:1px solid var(--err);color:var(--err);padding:6px 14px;border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer">ອອກ</button>
+    </div>
+    <div class="stats-bar">
+      <div class="sb"><div class="sv" id="a-total">—</div><div class="sl">ທັງໝົດ</div></div>
+      <div class="sb"><div class="sv" id="a-pending" style="color:orange">—</div><div class="sl">ລໍຖ້າ</div></div>
+      <div class="sb"><div class="sv" id="a-done" style="color:var(--ok)">—</div><div class="sl">ສຳເລັດ</div></div>
+    </div>
+    <div class="adm-tabs">
+      <button class="at active" id="at-orders" onclick="switchAdmTab('orders',this)">📋 ຄຳສັ່ງ</button>
+      <button class="at" id="at-settings" onclick="switchAdmTab('settings',this)">⚙️ ຕັ້ງຄ່າ</button>
+    </div>
+    <div class="adm-pg active" id="adm-orders"><div id="adm-order-list"></div></div>
+    <div class="adm-pg" id="adm-settings">
+      <div class="setting-row"><label>📱 ເບີ WhatsApp ຮັບ Order</label><input type="text" id="cfg-wa" placeholder="+8562099853291"></div>
+      <div class="setting-row"><label>🔐 ປ່ຽນລະຫັດ Admin (ປ່ອຍວ່າງ = ບໍ່ປ່ຽນ)</label><input type="password" id="cfg-pw" placeholder="ລະຫັດໃໝ່..."></div>
+      <div class="setting-row"><label>🏦 ຂໍ້ຄວາມໃນ Modal ຊຳລະ</label><textarea id="cfg-payinfo" rows="3"></textarea></div>
+      <button class="save-btn" onclick="saveSettings()">💾 ບັນທຶກ</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /scr -->
+
+<nav class="bnav">
+  <div class="ni active" id="ni-home" onclick="switchPage('home')"><span class="ni-ico">🏠</span><span class="ni-lbl">ໜ້າຫຼັກ</span></div>
+  <div class="ni ni-ctr" id="ni-topup" onclick="switchPage('topup')"><span class="ni-ico">⚡</span><span class="ni-lbl">ເຕີມເກມ</span></div>
+  <div class="ni" id="ni-history" onclick="switchPage('history')"><span class="ni-ico">📜</span><span class="ni-lbl">ປະຫວັດ</span></div>
+  <div class="ni" id="ni-profile" onclick="switchPage('profile')"><span class="ni-ico">👤</span><span class="ni-lbl">ໂປຣໄຟລ໌</span></div>
+</nav>
+</div><!-- /app -->
+
+<!-- ORDER MODAL -->
+<div class="ov" id="orderModal">
+  <div class="sheet">
+    <div class="sh-handle"></div>
+    <div class="sh-title" id="sh-title">ສັ່ງເຕີມ</div>
+    <div class="spd">
+      <div><div class="spd-g" id="spd-g">ເກມ</div><div class="spd-p" id="spd-p">—</div></div>
+      <div class="spd-pr" id="spd-pr">—</div>
+    </div>
+    <div class="fg"><label>🆔 ID ເກມ</label><input type="text" id="inp-id" placeholder="ໃສ່ Game ID"></div>
+    <div class="fg"><label>👤 ຊື່ InGame</label><input type="text" id="inp-name" placeholder="ຊື່ InGame"></div>
+    <div class="fg"><label>📞 ເບີຕິດຕໍ່</label><input type="tel" id="inp-phone" placeholder="020xxxxxxxx"></div>
+    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:9px;text-transform:uppercase;letter-spacing:.4px">💳 ຊຳລະເງິນ</div>
+    <div class="pay-row">
+      <div class="qr-box">
+        <div class="qr-ttl">🏦 BCEL One<br>ສ່ອງ QR ໂອນ</div>
+        <div class="qr-img">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" style="background:#fff">
+            <rect width="100" height="100" fill="white"/>
+            <rect x="5" y="5" width="30" height="30" fill="#000" rx="3"/><rect x="9" y="9" width="22" height="22" fill="#fff" rx="2"/><rect x="13" y="13" width="14" height="14" fill="#000" rx="1"/>
+            <rect x="65" y="5" width="30" height="30" fill="#000" rx="3"/><rect x="69" y="9" width="22" height="22" fill="#fff" rx="2"/><rect x="73" y="13" width="14" height="14" fill="#000" rx="1"/>
+            <rect x="5" y="65" width="30" height="30" fill="#000" rx="3"/><rect x="9" y="69" width="22" height="22" fill="#fff" rx="2"/><rect x="13" y="73" width="14" height="14" fill="#000" rx="1"/>
+            <rect x="40" y="5" width="5" height="5" fill="#000"/><rect x="50" y="5" width="5" height="5" fill="#000"/><rect x="60" y="5" width="5" height="5" fill="#000"/>
+            <rect x="40" y="12" width="5" height="5" fill="#000"/><rect x="55" y="12" width="5" height="5" fill="#000"/>
+            <rect x="45" y="19" width="10" height="5" fill="#000"/><rect x="60" y="19" width="5" height="5" fill="#000"/>
+            <rect x="5" y="40" width="5" height="5" fill="#000"/><rect x="15" y="40" width="5" height="5" fill="#000"/><rect x="25" y="40" width="5" height="5" fill="#000"/>
+            <rect x="35" y="40" width="5" height="5" fill="#000"/><rect x="45" y="40" width="10" height="5" fill="#000"/><rect x="60" y="40" width="5" height="5" fill="#000"/>
+            <rect x="70" y="40" width="5" height="5" fill="#000"/><rect x="80" y="40" width="5" height="5" fill="#000"/><rect x="90" y="40" width="5" height="5" fill="#000"/>
+            <rect x="5" y="47" width="10" height="5" fill="#000"/><rect x="20" y="47" width="5" height="5" fill="#000"/><rect x="30" y="47" width="5" height="5" fill="#000"/>
+            <rect x="40" y="47" width="5" height="5" fill="#000"/><rect x="50" y="47" width="5" height="5" fill="#000"/><rect x="65" y="47" width="10" height="5" fill="#000"/>
+            <rect x="5" y="54" width="5" height="5" fill="#000"/><rect x="15" y="54" width="10" height="5" fill="#000"/><rect x="30" y="54" width="5" height="5" fill="#000"/>
+            <rect x="40" y="54" width="10" height="5" fill="#000"/><rect x="55" y="54" width="5" height="5" fill="#000"/><rect x="65" y="54" width="5" height="5" fill="#000"/>
+            <rect x="75" y="54" width="10" height="5" fill="#000"/><rect x="90" y="54" width="5" height="5" fill="#000"/>
+            <rect x="40" y="62" width="5" height="5" fill="#000"/><rect x="50" y="62" width="10" height="5" fill="#000"/><rect x="65" y="62" width="5" height="5" fill="#000"/>
+            <rect x="40" y="69" width="5" height="5" fill="#000"/><rect x="55" y="69" width="5" height="5" fill="#000"/><rect x="65" y="69" width="10" height="5" fill="#000"/>
+            <rect x="80" y="69" width="5" height="5" fill="#000"/><rect x="90" y="69" width="5" height="5" fill="#000"/>
+            <rect x="40" y="76" width="10" height="5" fill="#000"/><rect x="55" y="76" width="5" height="5" fill="#000"/><rect x="70" y="76" width="5" height="5" fill="#000"/>
+            <rect x="85" y="76" width="5" height="5" fill="#000"/>
+            <rect x="40" y="83" width="5" height="5" fill="#000"/><rect x="50" y="83" width="5" height="5" fill="#000"/><rect x="60" y="83" width="5" height="5" fill="#000"/>
+            <rect x="75" y="83" width="10" height="5" fill="#000"/><rect x="90" y="83" width="5" height="5" fill="#000"/>
+            <rect x="40" y="90" width="5" height="5" fill="#000"/><rect x="55" y="90" width="5" height="5" fill="#000"/><rect x="70" y="90" width="5" height="5" fill="#000"/>
+          </svg>
+        </div>
+        <div style="font-size:10px;color:var(--muted);text-align:center;line-height:1.5">02099853291<br><strong style="color:var(--p)" id="qr-amount">0 ₭</strong></div>
+      </div>
+      <div class="slip-box" id="slip-box">
+        <input type="file" accept="image/*" id="slip-file" onchange="previewSlip(this)">
+        <img id="slip-prev">
+        <span class="slip-ico" id="slip-ico">📎</span>
+        <span class="slip-ttl" id="slip-ttl">ອັບໂຫລດ<br>ສະລິບໂອນ</span>
+      </div>
+    </div>
+    <div class="pay-note" id="pay-note-txt">💳 ໂອນ BCEL: <strong>02099853291</strong><br>ຫຼັງໂອນ ອັບໂຫລດສະລິບ ແລ້ວກົດຢືນຢັນ</div>
+    <button class="sub-btn" id="sub-btn" onclick="submitOrder()">✅ ຢືນຢັນ & ສົ່ງ WhatsApp</button>
+  </div>
+</div>
+
+<!-- SLIP VIEWER -->
+<div class="slip-viewer" id="slipViewer" onclick="closeSlipViewer()">
+  <button class="sv-close">✕</button>
+  <img id="sv-img" src="">
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOv">
+  <div class="spinner"></div>
+  <div style="color:#fff;font-size:14px;font-weight:600" id="loading-txt">ກຳລັງສົ່ງຂໍ້ມູນ...</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════════
+const SB_URL = 'https://cklifsgniqzocieeoezw.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNrbGlmc2duaXF6b2NpZWVvZXp3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMTUwNDUsImV4cCI6MjA5NDg5MTA0NX0.ShNaQ0GZsOLJN6893df9DZePlN1A4PNKAW3VcZ95iCo';
+
+const SB = {
+  headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': 'application/json', 'Prefer': 'return=representation' },
+
+  async getOrders() {
+    const r = await fetch(`${SB_URL}/rest/v1/orders?order=created_at.desc`, { headers: this.headers });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+
+  async insertOrder(data) {
+    const r = await fetch(`${SB_URL}/rest/v1/orders`, {
+      method: 'POST', headers: this.headers, body: JSON.stringify(data)
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+
+  async updateStatus(id, status) {
+    const r = await fetch(`${SB_URL}/rest/v1/orders?id=eq.${id}`, {
+      method: 'PATCH', headers: this.headers, body: JSON.stringify({ status })
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return r.json();
+  },
+
+  async deleteOrder(id) {
+    const r = await fetch(`${SB_URL}/rest/v1/orders?id=eq.${id}`, {
+      method: 'DELETE', headers: this.headers
+    });
+    if (!r.ok) throw new Error(await r.text());
+  },
+
+  // Upload slip image to Supabase Storage
+  async uploadSlip(dataURL, filename) {
+    const res = await fetch(dataURL);
+    const blob = await res.blob();
+    const r = await fetch(`${SB_URL}/storage/v1/object/slips/${filename}`, {
+      method: 'POST',
+      headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY, 'Content-Type': blob.type },
+      body: blob
+    });
+    if (!r.ok) return null;
+    return `${SB_URL}/storage/v1/object/public/slips/${filename}`;
+  },
+
+  // Realtime subscription
+  subscribe(callback) {
+    const es = new EventSource(
+      `${SB_URL}/realtime/v1/api/broadcast?apikey=${SB_KEY}`,
+      { withCredentials: false }
+    );
+    // fallback: poll every 8s
+    const poll = setInterval(callback, 8000);
+    return () => clearInterval(poll);
+  }
+};
+
+// ══════════════════════════════════════
+// LOCAL CONFIG (admin pw, wa number)
+// ══════════════════════════════════════
+const DEF_CFG = { waPhone: '+8562099853291', adminPw: '884988', payInfo: 'ໂອນ BCEL: 02099853291\nຫຼັງໂອນ ອັບໂຫລດສະລິບ ແລ້ວກົດຢືນຢັນ' };
+function getCfg() { return Object.assign({}, DEF_CFG, JSON.parse(localStorage.getItem('stv_cfg') || '{}')); }
+function saveCfg(o) { localStorage.setItem('stv_cfg', JSON.stringify(o)); }
+
+// ══════════════════════════════════════
+// GAME DATA
+// ══════════════════════════════════════
+const GAMES = {
+  MLBB: { name: 'Mobile Legends', icon: '⚔️', bg: 'linear-gradient(135deg,#1a3a8f,#3d7ef5)', currency: 'Diamonds',
+    pkgs: [{l:'36 Diamonds',p:20000},{l:'68 Diamonds',p:38000},{l:'155 Diamonds',p:85000,hot:true},
+           {l:'311 Diamonds',p:170000},{l:'568 Diamonds',p:310000},{l:'1144 Diamonds',p:600000,hot:true}] },
+  FF:   { name: 'Free Fire',      icon: '🔥', bg: 'linear-gradient(135deg,#8b1a1a,#ff4d0d)', currency: 'Diamonds',
+    pkgs: [{l:'50 Diamonds',p:20000},{l:'100 Diamonds',p:40000},{l:'210 Diamonds',p:85000,hot:true},
+           {l:'500 Diamonds',p:200000},{l:'1000 Diamonds',p:390000,hot:true},{l:'2000 Diamonds',p:750000}] },
+  ROV:  { name: 'ROV',            icon: '👑', bg: 'linear-gradient(135deg,#4a0e78,#9b59b6)', currency: 'Voucher',
+    pkgs: [{l:'50 Voucher',p:15000},{l:'100 Voucher',p:30000},{l:'250 Voucher',p:75000,hot:true},
+           {l:'500 Voucher',p:150000},{l:'1000 Voucher',p:295000,hot:true},{l:'2000 Voucher',p:580000}] }
+};
+
+const PAGE_LABELS = { home: 'ໜ້າຫຼັກ', topup: 'ເຕີມເກມ', history: 'ປະຫວັດ', profile: 'ໂປຣໄຟລ໌', admin: 'Admin' };
+let selPkg = { MLBB: 0, FF: 0, ROV: 0 };
+let curGame = 'MLBB';
+let slipDataURL = null;
+let adminLoggedIn = false;
+let allOrders = [];
+
+// Build package grids
+Object.keys(GAMES).forEach(gk => {
+  const el = document.getElementById('pkgs-' + gk);
+  GAMES[gk].pkgs.forEach((p, i) => {
+    const d = document.createElement('div');
+    d.className = 'pkg' + (i === 0 ? ' sel' : '');
+    d.id = `pkg-${gk}-${i}`;
+    d.onclick = () => selectPkg(gk, i);
+    d.innerHTML = `${p.hot ? '<span class="pkg-hot">HOT 🔥</span>' : ''}
+      <span class="pkg-ico">💎</span>
+      <span class="pkg-amt">${p.l}</span>
+      <span class="pkg-prc">${p.p.toLocaleString()} ₭</span>`;
+    el.appendChild(d);
+  });
+});
+
+function selectPkg(gk, i) {
+  GAMES[gk].pkgs.forEach((_, j) => { const e = document.getElementById(`pkg-${gk}-${j}`); if (e) e.classList.remove('sel'); });
+  document.getElementById(`pkg-${gk}-${i}`).classList.add('sel');
+  selPkg[gk] = i;
+}
+
+// ══════════════════════════════════════
+// PAGE / GAME NAVIGATION
+// ══════════════════════════════════════
+function switchPage(page) {
+  document.querySelectorAll('.pg').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  document.getElementById('pg-' + page).classList.add('active');
+  const ni = document.getElementById('ni-' + page);
+  if (ni) ni.classList.add('active');
+  document.getElementById('tbBadge').textContent = PAGE_LABELS[page] || '';
+  document.querySelector('.scr').scrollTop = 0;
+  if (page === 'history') loadAndRenderHistory();
+  if (page === 'profile') loadProfileStats();
+  if (page === 'admin' && adminLoggedIn) renderAdminDash();
+}
+
+function switchGame(gk) {
+  curGame = gk;
+  document.querySelectorAll('.gtab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.gpanel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-' + gk).classList.add('active');
+  document.getElementById('panel-' + gk).classList.add('active');
+}
+
+// ══════════════════════════════════════
+// ORDER MODAL
+// ══════════════════════════════════════
+function openOrder(gk) {
+  curGame = gk;
+  const g = GAMES[gk];
+  const pkg = g.pkgs[selPkg[gk]];
+  document.getElementById('sh-title').textContent = `ສັ່ງເຕີມ ${g.name}`;
+  document.getElementById('spd-g').textContent = `${g.name} (${g.currency})`;
+  document.getElementById('spd-p').textContent = pkg.l;
+  document.getElementById('spd-pr').textContent = pkg.p.toLocaleString() + ' ₭';
+  document.getElementById('qr-amount').textContent = pkg.p.toLocaleString() + ' ₭';
+  document.getElementById('inp-id').value = '';
+  document.getElementById('inp-name').value = '';
+  document.getElementById('inp-phone').value = '';
+  slipDataURL = null;
+  document.getElementById('slip-prev').style.display = 'none';
+  document.getElementById('slip-ico').style.display = '';
+  document.getElementById('slip-ttl').style.display = '';
+  document.getElementById('slip-file').value = '';
+  document.getElementById('pay-note-txt').innerHTML = getCfg().payInfo.replace(/\n/g, '<br>');
+  document.getElementById('orderModal').classList.add('on');
+}
+
+function closeOrder() { document.getElementById('orderModal').classList.remove('on'); }
+document.getElementById('orderModal').addEventListener('click', e => { if (e.target === document.getElementById('orderModal')) closeOrder(); });
+
+function previewSlip(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    slipDataURL = e.target.result;
+    const prev = document.getElementById('slip-prev');
+    prev.src = slipDataURL;
+    prev.style.display = 'block';
+    document.getElementById('slip-ico').style.display = 'none';
+    document.getElementById('slip-ttl').style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitOrder() {
+  const id    = document.getElementById('inp-id').value.trim();
+  const name  = document.getElementById('inp-name').value.trim();
+  const phone = document.getElementById('inp-phone').value.trim();
+  if (!id || !name || !phone) { showToast('⚠️ ກະລຸນາໃສ່ຂໍ້ມູນໃຫ້ຄົບ', 'err'); return; }
+  if (!slipDataURL)            { showToast('⚠️ ກະລຸນາອັບໂຫລດສະລິບ', 'err'); return; }
+
+  const g   = GAMES[curGame];
+  const pkg = g.pkgs[selPkg[curGame]];
+  const btn = document.getElementById('sub-btn');
+  btn.disabled = true;
+  showLoading('ກຳລັງອັບໂຫລດ...');
+
+  try {
+    // 1) Upload slip image
+    const fname = `slip_${Date.now()}.jpg`;
+    const slipUrl = await SB.uploadSlip(slipDataURL, fname);
+
+    // 2) Insert order to Supabase
+    const orderData = {
+      game: curGame, game_name: g.name, icon: g.icon,
+      pkg: pkg.l, price: pkg.price || pkg.p,
+      game_id: id, username: name, phone: phone,
+      status: 'pending', slip_url: slipUrl || ''
+    };
+    // fix: use pkg.p not pkg.price
+    orderData.price = pkg.p;
+    const result = await SB.insertOrder(orderData);
+    const newOrder = Array.isArray(result) ? result[0] : result;
+
+    hideLoading();
+    closeOrder();
+    sendWhatsApp({ ...newOrder, gameName: g.name, bg: g.bg });
+    showToast('✅ ສົ່ງຄຳສັ່ງສຳເລັດ!');
+    loadAndRenderHistory();
+    loadProfileStats();
+    updatePendingBadge();
+
+  } catch (err) {
+    hideLoading();
+    showToast('❌ ເກີດຂໍ້ຜິດພາດ: ' + err.message, 'err');
+    console.error(err);
+  }
+  btn.disabled = false;
+}
+
+// ══════════════════════════════════════
+// WHATSAPP
+// ══════════════════════════════════════
+function sendWhatsApp(o) {
+  const cfg = getCfg();
+  const ph  = cfg.waPhone.replace(/\D/g, '');
+  const msg = `🎮 *ຄຳສັ່ງໃໝ່ STV TopUp*
+━━━━━━━━━━━━━━
+🎯 ເກມ: ${o.game_name || o.gameName}
+💎 Package: ${o.pkg}
+💰 ລາຄາ: ${(o.price||0).toLocaleString()} ₭
+━━━━━━━━━━━━━━
+👤 ຊື່: ${o.username}
+🆔 ID ເກມ: ${o.game_id}
+📞 ໂທ: ${o.phone}
+🕐 ເວລາ: ${new Date(o.created_at||Date.now()).toLocaleString('lo-LA')}
+🖼 ສະລິບ: ${o.slip_url || 'ບໍ່ມີ'}
+━━━━━━━━━━━━━━
+✅ ກະລຸນາກວດສອບ & ອັບເດດສະຖານະ`;
+  window.open(`https://wa.me/${ph}?text=${encodeURIComponent(msg)}`, '_blank');
+}
+
+// ══════════════════════════════════════
+// HISTORY
+// ══════════════════════════════════════
+async function loadAndRenderHistory() {
+  const el = document.getElementById('histList');
+  el.innerHTML = '<div class="hist-empty"><div class="icon">⏳</div><p>ກຳລັງໂຫລດ...</p></div>';
+  try {
+    allOrders = await SB.getOrders();
+    renderHistory(allOrders);
+    updatePendingBadge();
+  } catch (e) {
+    el.innerHTML = '<div class="hist-empty"><div class="icon">❌</div><p>ໂຫລດບໍ່ໄດ້<br>' + e.message + '</p></div>';
+  }
+}
+
+function renderHistory(orders) {
+  const el = document.getElementById('histList');
+  if (!orders.length) {
+    el.innerHTML = '<div class="hist-empty"><div class="icon">📭</div><p>ຍັງບໍ່ມີປະຫວັດ</p></div>';
+    return;
+  }
+  const bgMap = { MLBB: 'linear-gradient(135deg,#1a3a8f,#3d7ef5)', FF: 'linear-gradient(135deg,#8b1a1a,#ff4d0d)', ROV: 'linear-gradient(135deg,#4a0e78,#9b59b6)' };
+  el.innerHTML = orders.map(o => `
+    <div class="hi">
+      <div class="hi-ico" style="background:${bgMap[o.game]||'var(--card2)'}">${o.icon||'🎮'}</div>
+      <div class="hi-info">
+        <strong>${o.game_name} — ${o.pkg}</strong>
+        <span>ID: ${o.game_id} · ${new Date(o.created_at).toLocaleDateString('lo-LA')}</span>
+      </div>
+      <div class="hi-right">
+        <span class="hstat ${o.status==='done'?'s-ok':'s-pend'}">${o.status==='done'?'✓ ສຳເລັດ':'⏳ ລໍຖ້າ'}</span>
+        ${o.slip_url ? `<span class="hi-slip" onclick="viewSlip('${o.slip_url}')">🖼 ສະລິບ</span>` : ''}
+      </div>
+    </div>`).join('');
+}
+
+// ══════════════════════════════════════
+// PROFILE STATS
+// ══════════════════════════════════════
+async function loadProfileStats() {
+  try {
+    const orders = await SB.getOrders();
+    allOrders = orders;
+    document.getElementById('st-orders').textContent = orders.length;
+    updatePendingBadge(orders);
+  } catch(e) {}
+}
+
+function updatePendingBadge(orders) {
+  const arr = orders || allOrders;
+  const cnt = arr.filter(o => o.status === 'pending').length;
+  const b   = document.getElementById('pending-badge');
+  b.textContent = cnt;
+  b.style.display = cnt > 0 ? '' : 'none';
+}
+
+// ══════════════════════════════════════
+// ADMIN
+// ══════════════════════════════════════
+function openAdminLogin() {
+  if (adminLoggedIn) { switchPage('admin'); renderAdminDash(); return; }
+  switchPage('admin');
+  document.getElementById('adm-pw-inp').value = '';
+  document.getElementById('adm-err').style.display = 'none';
+}
+
+function doAdminLogin() {
+  const pw = document.getElementById('adm-pw-inp').value;
+  if (pw === getCfg().adminPw) {
+    adminLoggedIn = true;
+    document.getElementById('adm-login-wrap').style.display = 'none';
+    document.getElementById('adm-dash').style.display = 'block';
+    renderAdminDash();
+  } else {
+    document.getElementById('adm-err').style.display = 'block';
+  }
+}
+
+function logoutAdmin() {
+  adminLoggedIn = false;
+  document.getElementById('adm-login-wrap').style.display = 'block';
+  document.getElementById('adm-dash').style.display = 'none';
+  switchPage('profile');
+}
+
+function switchAdmTab(tab, btn) {
+  document.querySelectorAll('.at').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.adm-pg').forEach(p => p.classList.remove('active'));
+  document.getElementById('adm-' + tab).classList.add('active');
+  btn.classList.add('active');
+}
+
+async function renderAdminDash() {
+  if (!adminLoggedIn) return;
+  const cfg = getCfg();
+  document.getElementById('cfg-wa').value      = cfg.waPhone;
+  document.getElementById('cfg-payinfo').value = cfg.payInfo;
+
+  document.getElementById('a-total').textContent   = '...';
+  document.getElementById('a-pending').textContent = '...';
+  document.getElementById('a-done').textContent    = '...';
+  document.getElementById('adm-order-list').innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">⏳ ໂຫລດ...</div>';
+
+  try {
+    const orders = await SB.getOrders();
+    allOrders = orders;
+    const pend = orders.filter(o => o.status === 'pending').length;
+    const done = orders.filter(o => o.status === 'done').length;
+    document.getElementById('a-total').textContent   = orders.length;
+    document.getElementById('a-pending').textContent = pend;
+    document.getElementById('a-done').textContent    = done;
+    updatePendingBadge(orders);
+
+    const bgMap = { MLBB: 'linear-gradient(135deg,#1a3a8f,#3d7ef5)', FF: 'linear-gradient(135deg,#8b1a1a,#ff4d0d)', ROV: 'linear-gradient(135deg,#4a0e78,#9b59b6)' };
+    const el = document.getElementById('adm-order-list');
+    if (!orders.length) { el.innerHTML = '<div style="text-align:center;padding:40px;color:var(--muted)">📭 ຍັງບໍ່ມີຄຳສັ່ງ</div>'; return; }
+    el.innerHTML = orders.map(o => `
+      <div class="ao" id="ao-${o.id}">
+        <div class="ao-top">
+          <div class="ao-ico" style="background:${bgMap[o.game]||'#333'}">${o.icon||'🎮'}</div>
+          <div class="ao-info">
+            <strong>${o.game_name} — ${o.pkg}</strong>
+            <span>${new Date(o.created_at).toLocaleString('lo-LA')}</span>
+          </div>
+          <div style="text-align:right">
+            <div class="ao-price">${(o.price||0).toLocaleString()} ₭</div>
+            <span class="ao-stat ${o.status==='done'?'s-ok':'s-pend'}">${o.status==='done'?'✓ ສຳເລັດ':'⏳ ລໍຖ້າ'}</span>
+          </div>
+        </div>
+        <div class="ao-detail">
+          <div><div class="lbl">👤 ຊື່</div><div class="val">${o.username}</div></div>
+          <div><div class="lbl">🆔 Game ID</div><div class="val">${o.game_id}</div></div>
+          <div><div class="lbl">📞 ເບີໂທ</div><div class="val">${o.phone}</div></div>
+          <div><div class="lbl">📦 Package</div><div class="val">${o.pkg}</div></div>
+        </div>
+        <div class="ao-actions">
+          <button class="btn-done" onclick="markDone(${o.id})" ${o.status==='done'?'disabled':''}>✅ ສຳເລັດ</button>
+          <button class="btn-slip" onclick="viewSlip('${o.slip_url||''}')" ${!o.slip_url?'disabled style="opacity:.3"':''}>🖼 ສະລິບ</button>
+          <button class="btn-del" onclick="deleteOrder(${o.id})">🗑</button>
+        </div>
+      </div>`).join('');
+  } catch (e) {
+    document.getElementById('adm-order-list').innerHTML = `<div style="color:var(--err);padding:20px;text-align:center">❌ ${e.message}</div>`;
+  }
+}
+
+async function markDone(id) {
+  try {
+    showLoading('ກຳລັງອັບເດດ...');
+    await SB.updateStatus(id, 'done');
+    hideLoading();
+    showToast('✅ ອັບເດດສຳເລັດ!');
+    renderAdminDash();
+  } catch (e) { hideLoading(); showToast('❌ ' + e.message, 'err'); }
+}
+
+async function deleteOrder(id) {
+  if (!confirm('ລົບຄຳສັ່ງນີ້?')) return;
+  try {
+    showLoading('ກຳລັງລົບ...');
+    await SB.deleteOrder(id);
+    hideLoading();
+    showToast('🗑 ລົບສຳເລັດ');
+    renderAdminDash();
+  } catch (e) { hideLoading(); showToast('❌ ' + e.message, 'err'); }
+}
+
+function saveSettings() {
+  const pw = document.getElementById('cfg-pw').value.trim();
+  const cfg = {
+    waPhone:  document.getElementById('cfg-wa').value.trim() || '+8562099853291',
+    adminPw:  pw || getCfg().adminPw,
+    payInfo:  document.getElementById('cfg-payinfo').value.trim()
+  };
+  saveCfg(cfg);
+  showToast('💾 ບັນທຶກສຳເລັດ!');
+}
+
+// ══════════════════════════════════════
+// SLIP VIEWER
+// ══════════════════════════════════════
+function viewSlip(url) {
+  if (!url) return;
+  document.getElementById('sv-img').src = url;
+  document.getElementById('slipViewer').classList.add('on');
+}
+function closeSlipViewer() { document.getElementById('slipViewer').classList.remove('on'); }
+
+// ══════════════════════════════════════
+// LOADING / TOAST
+// ══════════════════════════════════════
+function showLoading(txt) {
+  document.getElementById('loading-txt').textContent = txt || '...';
+  document.getElementById('loadingOv').classList.add('on');
+}
+function hideLoading() { document.getElementById('loadingOv').classList.remove('on'); }
+
+function showToast(msg, type) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast on' + (type === 'err' ? ' err' : '');
+  setTimeout(() => t.className = 'toast', 3000);
+}
+
+// ══════════════════════════════════════
+// AUTO-REFRESH every 10s (realtime fallback)
+// ══════════════════════════════════════
+setInterval(() => {
+  const curPage = document.querySelector('.pg.active')?.id;
+  if (curPage === 'pg-history') loadAndRenderHistory();
+  if (curPage === 'pg-admin' && adminLoggedIn) renderAdminDash();
+  loadProfileStats();
+}, 10000);
+
+// INIT
+loadProfileStats();
+</script>
+</body>
+</html>
