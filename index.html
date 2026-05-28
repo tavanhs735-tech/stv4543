@@ -1355,11 +1355,28 @@ function calcDiscPrice(p, disc) {
   return Math.round(p * (1 - disc / 100));
 }
 
+// emoji fallback ตามประเภท package
+function pkgEmoji(gk, p) {
+  if (p.cat === 'weekly') return '📅';
+  if (p.cat === 'monthly') return '🗓️';
+  if (p.cat === 'pass') return '🎫';
+  if (gk === 'ROV') return '🪙';
+  return '💎';
+}
+
 function renderPkgCard(gk, p, i, disc) {
   const discPrice = calcDiscPrice(p.p, disc);
-  const imgHtml = p.img
-    ? `<div class="pkg-img-wrap"><img src="${p.img}" onerror="this.style.display='none'"></div>`
-    : `<span class="pkg-ico">💎</span>`;
+  const emoji = pkgEmoji(gk, p);
+  // รูปภาพ: ใช้ base64 จาก p.imgData ก่อน ถ้าไม่มีค่อยลอง p.img (url)
+  let imgHtml;
+  if (p.imgData) {
+    imgHtml = `<div class="pkg-img-wrap"><img src="${p.imgData}" alt="${p.l}"></div>`;
+  } else if (p.img && p.img.startsWith('data:')) {
+    imgHtml = `<div class="pkg-img-wrap"><img src="${p.img}" alt="${p.l}"></div>`;
+  } else {
+    // ไม่มีรูป → แสดง emoji ขนาดใหญ่
+    imgHtml = `<div class="pkg-img-wrap" style="background:rgba(255,255,255,.06);font-size:28px;display:flex;align-items:center;justify-content:center">${emoji}</div>`;
+  }
   const priceHtml = discPrice
     ? `<span class="pkg-prc-orig">${p.p.toLocaleString()} ₭</span><span class="pkg-prc">${discPrice.toLocaleString()} ₭</span>`
     : `<span class="pkg-prc">${p.p.toLocaleString()} ₭</span>`;
@@ -1418,18 +1435,80 @@ function makePkgRow(gk, i, p) {
   const row = document.createElement('div');
   row.className = 'pkg-edit-row';
   row.id = `pke-row-${gk}-${i}`;
-  row.style.cssText = 'display:grid;grid-template-columns:1fr 80px 44px 34px;gap:6px;margin-bottom:6px';
+  row.style.cssText = 'background:var(--card2);border:1px solid var(--bdr);border-radius:10px;padding:10px;margin-bottom:8px';
+
+  const hasImg = p.imgData || (p.img && p.img.startsWith('data:'));
+  const imgSrc = p.imgData || p.img || '';
+  const emoji = pkgEmoji(gk, p);
+
   row.innerHTML = `
-    <div style="display:flex;flex-direction:column;gap:3px">
-      <input type="text" value="${p.l}" id="pke-l-${gk}-${i}" placeholder="ຊື່ Package" style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;width:100%">
-      <input type="text" value="${p.img||''}" id="pke-img-${gk}-${i}" placeholder="URL ຮູບ (ທາງເລືອກ)" style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:5px 9px;color:var(--text);font-family:inherit;font-size:10px;outline:none;width:100%;color:var(--muted)">
-    </div>
-    <input type="number" value="${p.p}" id="pke-p-${gk}-${i}" placeholder="ລາຄາ" style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;width:100%">
-    <button class="pkg-hot-toggle${p.hot?' on':''}" id="pke-h-${gk}-${i}"
-        onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'🔥':'—'"
-        style="padding:0;border-radius:7px;font-size:13px;border:1.5px solid var(--bdr);background:var(--bg);color:var(--text);cursor:pointer;height:100%">${p.hot?'🔥':'—'}</button>
-    <button onclick="removePkgRow('${gk}',${i})" style="padding:0;border-radius:7px;font-size:15px;border:1.5px solid rgba(255,68,68,.3);background:rgba(255,68,68,.08);color:var(--err);cursor:pointer;height:38px">🗑</button>`;
+    <div style="display:flex;gap:9px;align-items:flex-start">
+      <!-- รูป preview + upload -->
+      <div style="flex-shrink:0;text-align:center">
+        <div id="pke-prev-${gk}-${i}" style="width:52px;height:52px;border-radius:9px;overflow:hidden;background:rgba(255,255,255,.07);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:4px;border:1.5px dashed var(--bdr);cursor:pointer;position:relative" onclick="document.getElementById('pke-file-${gk}-${i}').click()">
+          ${hasImg ? `<img src="${imgSrc}" style="width:100%;height:100%;object-fit:cover">` : emoji}
+          <input type="file" accept="image/*" id="pke-file-${gk}-${i}" style="display:none" onchange="handlePkgImgUpload(this,'${gk}',${i})">
+        </div>
+        <div style="font-size:9px;color:var(--ac);cursor:pointer" onclick="document.getElementById('pke-file-${gk}-${i}').click()">📷 ອັບໂຫລດ</div>
+        ${hasImg ? `<div style="font-size:9px;color:var(--err);cursor:pointer;margin-top:2px" onclick="clearPkgImg('${gk}',${i})">✕ ລຶບ</div>` : ''}
+      </div>
+      <!-- ชื่อ + ราคา + hot -->
+      <div style="flex:1;display:flex;flex-direction:column;gap:5px">
+        <input type="text" value="${p.l}" id="pke-l-${gk}-${i}" placeholder="ຊື່ Package"
+          style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;width:100%">
+        <div style="display:flex;gap:6px">
+          <input type="number" value="${p.p}" id="pke-p-${gk}-${i}" placeholder="ລາຄາ ₭"
+            style="flex:1;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none">
+          <button class="pkg-hot-toggle${p.hot?' on':''}" id="pke-h-${gk}-${i}"
+            onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'🔥 HOT':'—'"
+            style="padding:0 8px;border-radius:7px;font-size:11px;border:1.5px solid var(--bdr);background:var(--bg);color:var(--text);cursor:pointer;white-space:nowrap">${p.hot?'🔥 HOT':'—'}</button>
+          <button onclick="removePkgRow('${gk}',${i})"
+            style="padding:0 8px;border-radius:7px;font-size:14px;border:1.5px solid rgba(255,68,68,.3);background:rgba(255,68,68,.08);color:var(--err);cursor:pointer">🗑</button>
+        </div>
+      </div>
+    </div>`;
   return row;
+}
+
+function handlePkgImgUpload(input, gk, i) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const data = e.target.result;
+    // เก็บ base64 ไว้ใน GAMES object
+    GAMES[gk].pkgs[i].imgData = data;
+    GAMES[gk].pkgs[i].img = data;
+    // อัปเดต preview ในแถว
+    const prev = document.getElementById(`pke-prev-${gk}-${i}`);
+    if (prev) {
+      const fileInput = prev.querySelector('input[type=file]');
+      prev.innerHTML = `<img src="${data}" style="width:100%;height:100%;object-fit:cover">`;
+      if (fileInput) prev.appendChild(fileInput);
+      // เพิ่มปุ่มลบ
+      const parent = prev.parentElement;
+      let delBtn = parent.querySelector('.del-img-btn');
+      if (!delBtn) {
+        delBtn = document.createElement('div');
+        delBtn.className = 'del-img-btn';
+        delBtn.style.cssText = 'font-size:9px;color:var(--err);cursor:pointer;margin-top:2px';
+        delBtn.textContent = '✕ ລຶບ';
+        delBtn.onclick = () => clearPkgImg(gk, i);
+        parent.appendChild(delBtn);
+      }
+    }
+    // อัปเดตหน้า package ทันที
+    rebuildGamePkgUI(gk);
+    showToast('✅ ອັບໂຫລດຮູບສຳເລັດ! ກົດ 💾 ບັນທຶກເພື່ອ sync ທຸກໂທລະສັບ');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPkgImg(gk, i) {
+  GAMES[gk].pkgs[i].imgData = '';
+  GAMES[gk].pkgs[i].img = '';
+  buildPackageEditor();
+  rebuildGamePkgUI(gk);
 }
 
 function addPkgRow(gk) {
@@ -1449,24 +1528,23 @@ async function savePackages() {
   Object.keys(GAMES).forEach(gk => {
     const discEl = document.getElementById(`disc-${gk}`);
     if (discEl) GAMES[gk].discount = parseInt(discEl.value) || 0;
-    newPkgs[gk] = GAMES[gk].pkgs.map((_, i) => {
-      const l = document.getElementById(`pke-l-${gk}-${i}`)?.value.trim() || _.l;
-      const p = parseInt(document.getElementById(`pke-p-${gk}-${i}`)?.value) || _.p;
+    newPkgs[gk] = GAMES[gk].pkgs.map((orig, i) => {
+      const l = document.getElementById(`pke-l-${gk}-${i}`)?.value.trim() || orig.l;
+      const p = parseInt(document.getElementById(`pke-p-${gk}-${i}`)?.value) || orig.p;
       const hot = document.getElementById(`pke-h-${gk}-${i}`)?.classList.contains('on') || false;
-      const img = document.getElementById(`pke-img-${gk}-${i}`)?.value.trim() || _.img || '';
-      return { l, p, hot, img };
+      const imgData = orig.imgData || orig.img || '';
+      return { l, p, hot, img: imgData, imgData };
     });
     GAMES[gk].pkgs = newPkgs[gk];
     rebuildGamePkgUI(gk);
   });
-  // save discount per game separately
   const discounts = {};
   Object.keys(GAMES).forEach(gk => { discounts[gk] = GAMES[gk].discount || 0; });
   showLoading('ກຳລັງບັນທຶກ...');
   const ok = await SB.setSetting('game_packages', JSON.stringify(newPkgs));
   await SB.setSetting('game_discounts', JSON.stringify(discounts));
   hideLoading();
-  if (ok) showToast('✅ ບັນທຶກ Packages & ສ່ວນລົດສຳເລັດ!');
+  if (ok) showToast('✅ ບັນທຶກ Packages & ຮູບ sync ທຸກໂທລະສັບສຳເລັດ!');
   else showToast('⚠️ ບໍ່ສາມາດ sync ໄດ້ — ກວດສອບ Supabase settings table', 'err');
 }
 
@@ -1476,56 +1554,56 @@ async function savePackages() {
 const GAMES = {
   MLBB:{name:'Mobile Legends',icon:'⚔️',bg:'linear-gradient(135deg,#1a3a8f,#3d7ef5)',currency:'Diamonds',discount:0,
     pkgs:[
-      {l:'36 💎',p:20000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'68 💎',p:38000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'155 💎',p:85000,hot:true,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'311 💎',p:170000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'568 💎',p:310000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'1144 💎',p:600000,hot:true,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'2195 💎',p:1150000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'Weekly Pass',p:22000,img:'https://i.imgur.com/eYkHGfh.png',cat:'pass'},
-      {l:'Monthly Pass',p:85000,hot:true,img:'https://i.imgur.com/eYkHGfh.png',cat:'pass'},
-      {l:'Twilight Pass',p:280000,img:'https://i.imgur.com/eYkHGfh.png',cat:'pass'}
+      {l:'36 💎',p:20000,img:''},
+      {l:'68 💎',p:38000,img:''},
+      {l:'155 💎',p:85000,hot:true,img:''},
+      {l:'311 💎',p:170000,img:''},
+      {l:'568 💎',p:310000,img:''},
+      {l:'1144 💎',p:600000,hot:true,img:''},
+      {l:'2195 💎',p:1150000,img:''},
+      {l:'Weekly Pass',p:22000,img:'',cat:'weekly'},
+      {l:'Monthly Pass',p:85000,hot:true,img:'',cat:'monthly'},
+      {l:'Twilight Pass',p:280000,img:'',cat:'pass'}
     ]},
   FF:{name:'Free Fire',icon:'🔥',bg:'linear-gradient(135deg,#8b1a1a,#ff4d0d)',currency:'Diamonds',discount:0,
     pkgs:[
-      {l:'50 💎',p:20000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
-      {l:'100 💎',p:40000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
-      {l:'210 💎',p:85000,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
-      {l:'500 💎',p:200000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
-      {l:'1000 💎',p:390000,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
-      {l:'2000 💎',p:750000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
-      {l:'เติบโต 6',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
-      {l:'เติบโต 10',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
-      {l:'เติบโต 15',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
-      {l:'เติบโต 20',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
-      {l:'เติบโต 25',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
-      {l:'เติบโต 30',p:15840,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
-      {l:'ลายอาทิตย์มีมี W',p:22628,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'weekly'},
-      {l:'ลายอาทิตย์ W',p:45255,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'weekly'},
-      {l:'BP Card บูย่าพาด',p:61095,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'pass'},
-      {l:'ลายเดือม M',p:203648,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'monthly'}
+      {l:'50 💎',p:20000,img:''},
+      {l:'100 💎',p:40000,img:''},
+      {l:'210 💎',p:85000,hot:true,img:''},
+      {l:'500 💎',p:200000,img:''},
+      {l:'1000 💎',p:390000,hot:true,img:''},
+      {l:'2000 💎',p:750000,img:''},
+      {l:'เติบโต 6',p:11314,img:'',cat:'pass'},
+      {l:'เติบโต 10',p:11314,img:'',cat:'pass'},
+      {l:'เติบโต 15',p:11314,img:'',cat:'pass'},
+      {l:'เติบโต 20',p:11314,img:'',cat:'pass'},
+      {l:'เติบโต 25',p:11314,img:'',cat:'pass'},
+      {l:'เติบโต 30',p:15840,img:'',cat:'pass'},
+      {l:'ลายอาทิตย์มีมี W',p:22628,img:'',cat:'weekly'},
+      {l:'ลายอาทิตย์ W',p:45255,hot:true,img:'',cat:'weekly'},
+      {l:'BP Card บูย่าพาด',p:61095,img:'',cat:'pass'},
+      {l:'ลายเดือม M',p:203648,hot:true,img:'',cat:'monthly'}
     ]},
-  MLBG:{name:'Mobile Legends (Global)',icon:'⚔️',bg:'linear-gradient(135deg,#0b2a6e,#1e56c0)',currency:'Diamonds',discount:0,
+  MLBG:{name:'ML Bang Bang Global',icon:'⚔️',bg:'linear-gradient(135deg,#0b2a6e,#1e56c0)',currency:'Diamonds',discount:0,
     pkgs:[
-      {l:'11 💎',p:12000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'22 💎',p:24000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'56 💎',p:60000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'112 💎',p:118000,hot:true,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
-      {l:'Weekly Diamond Pass',p:22000,img:'https://i.imgur.com/eYkHGfh.png',cat:'weekly'},
-      {l:'Monthly Diamond Pass',p:80000,hot:true,img:'https://i.imgur.com/eYkHGfh.png',cat:'monthly'}
+      {l:'11 💎',p:12000,img:''},
+      {l:'22 💎',p:24000,img:''},
+      {l:'56 💎',p:60000,img:''},
+      {l:'112 💎',p:118000,hot:true,img:''},
+      {l:'Weekly Pass',p:22000,img:'',cat:'weekly'},
+      {l:'Monthly Pass',p:80000,hot:true,img:'',cat:'monthly'}
     ]},
   ROV:{name:'ROV',icon:'👑',bg:'linear-gradient(135deg,#4a0e78,#9b59b6)',currency:'Voucher',discount:0,
     pkgs:[
-      {l:'50 🪙',p:15000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
-      {l:'100 🪙',p:30000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
-      {l:'250 🪙',p:75000,hot:true,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
-      {l:'500 🪙',p:150000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
-      {l:'1000 🪙',p:295000,hot:true,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
-      {l:'2000 🪙',p:580000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
-      {l:'Weekly Pass',p:25000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60',cat:'weekly'},
-      {l:'Monthly Pass',p:90000,hot:true,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60',cat:'monthly'},
-      {l:'Season Pass',p:250000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60',cat:'pass'}
+      {l:'50 🪙',p:15000,img:''},
+      {l:'100 🪙',p:30000,img:''},
+      {l:'250 🪙',p:75000,hot:true,img:''},
+      {l:'500 🪙',p:150000,img:''},
+      {l:'1000 🪙',p:295000,hot:true,img:''},
+      {l:'2000 🪙',p:580000,img:''},
+      {l:'Weekly Pass',p:25000,img:'',cat:'weekly'},
+      {l:'Monthly Pass',p:90000,hot:true,img:'',cat:'monthly'},
+      {l:'Season Pass',p:250000,img:'',cat:'pass'}
     ]}
 };
 
