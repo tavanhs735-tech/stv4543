@@ -139,13 +139,17 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
 .gd-info p{font-size:12px;opacity:.7;margin-top:1px}
 .gd-badge{background:rgba(255,255,255,.14);border-radius:6px;padding:2px 8px;font-size:10px;display:inline-block;margin-top:3px}
 .pkg-lbl{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:9px;letter-spacing:.4px;text-transform:uppercase}
-.pkgs{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px}
-.pkg{background:var(--card);border:2px solid var(--bdr);border-radius:13px;padding:13px 11px;cursor:pointer;transition:all .2s;position:relative}
+.pkgs{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px;margin-bottom:14px}
+.pkg{background:var(--card);border:2px solid var(--bdr);border-radius:13px;padding:10px 8px;cursor:pointer;transition:all .2s;position:relative;text-align:center}
 .pkg.sel{border-color:var(--theme-p);background:rgba(255,107,53,.1)}
-.pkg-ico{font-size:20px;margin-bottom:5px;display:block}
-.pkg-amt{font-size:15px;font-weight:800;display:block;margin-bottom:3px}
-.pkg-prc{font-size:13px;color:var(--theme-p);font-weight:700}
-.pkg-hot{position:absolute;top:-7px;right:7px;background:var(--gold);color:#333;font-size:10px;font-weight:800;padding:2px 6px;border-radius:9px}
+.pkg-img-wrap{width:56px;height:56px;margin:0 auto 6px;border-radius:10px;overflow:hidden;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center}
+.pkg-img-wrap img{width:100%;height:100%;object-fit:cover;border-radius:10px}
+.pkg-ico{font-size:22px;margin-bottom:5px;display:block}
+.pkg-amt{font-size:12px;font-weight:800;display:block;margin-bottom:2px;line-height:1.2}
+.pkg-prc-orig{font-size:10px;color:var(--muted);text-decoration:line-through;display:block}
+.pkg-prc{font-size:12px;color:#ff69b4;font-weight:800}
+.pkg-disc{position:absolute;top:-7px;left:7px;background:#ff3366;color:#fff;font-size:9px;font-weight:800;padding:2px 5px;border-radius:7px}
+.pkg-hot{position:absolute;top:-7px;right:7px;background:var(--gold);color:#333;font-size:9px;font-weight:800;padding:2px 5px;border-radius:7px}
 .order-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--theme-p),var(--theme-p2));color:#fff;border:none;border-radius:13px;font-family:inherit;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 7px 18px rgba(255,107,53,.4);transition:transform .15s;margin-top:4px;display:block}
 .order-btn:active{transform:scale(.97)}
 
@@ -531,6 +535,9 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <button class="gtab" id="tab-ROV" onclick="switchGame('ROV')">
       <div class="gtab-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)"><img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">👑</div></div>ROV
     </button>
+    <button class="gtab" id="tab-MLBG" onclick="switchGame('MLBG')">
+      <div class="gtab-img" style="background:linear-gradient(135deg,#0b2a6e,#1e56c0)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚔️</div></div>ML Global
+    </button>
   </div>
   <div class="gpanel active" id="panel-MLBB">
     <div class="gdh gdh-m"><div class="gdh-bg">⚔️</div>
@@ -559,9 +566,16 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <div class="pkgs" id="pkgs-ROV"></div>
     <button class="order-btn" onclick="openOrder('ROV')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
   </div>
+  <div class="gpanel" id="panel-MLBG">
+    <div class="gdh" style="background:linear-gradient(135deg,#0b2a6e,#1e56c0)"><div class="gdh-bg">⚔️</div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#0b2a6e,#1e56c0)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">⚔️</div></div>
+      <div class="gd-info"><h3>ML Bang Bang</h3><p>Global — Moonton</p><span class="gd-badge">💎 Diamonds</span></div>
+    </div>
+    <div class="pkg-lbl">ເລືອກ Package</div>
+    <div class="pkgs" id="pkgs-MLBG"></div>
+    <button class="order-btn" onclick="openOrder('MLBG')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
+  </div>
 </div>
-
-<!-- HISTORY -->
 <div class="pg" id="pg-history">
   <div style="padding:16px 18px 7px;font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:space-between">
     <span>📜 ປະຫວັດ <span class="rt-dot" style="margin-left:4px"></span></span>
@@ -1318,6 +1332,11 @@ async function loadAppearance() {
 async function loadPackagesFromCloud() {
   try {
     const raw = await SB.getSetting('game_packages');
+    const discRaw = await SB.getSetting('game_discounts');
+    if (discRaw) {
+      const discounts = JSON.parse(discRaw);
+      Object.keys(discounts).forEach(gk => { if (GAMES[gk]) GAMES[gk].discount = discounts[gk] || 0; });
+    }
     if (!raw) return;
     const saved = JSON.parse(raw);
     // Merge saved packages into GAMES
@@ -1331,19 +1350,35 @@ async function loadPackagesFromCloud() {
   } catch(e) { console.warn('Package load failed', e); }
 }
 
+function calcDiscPrice(p, disc) {
+  if (!disc || disc <= 0) return null;
+  return Math.round(p * (1 - disc / 100));
+}
+
+function renderPkgCard(gk, p, i, disc) {
+  const discPrice = calcDiscPrice(p.p, disc);
+  const imgHtml = p.img
+    ? `<div class="pkg-img-wrap"><img src="${p.img}" onerror="this.style.display='none'"></div>`
+    : `<span class="pkg-ico">💎</span>`;
+  const priceHtml = discPrice
+    ? `<span class="pkg-prc-orig">${p.p.toLocaleString()} ₭</span><span class="pkg-prc">${discPrice.toLocaleString()} ₭</span>`
+    : `<span class="pkg-prc">${p.p.toLocaleString()} ₭</span>`;
+  const discBadge = disc > 0 ? `<span class="pkg-disc">-${disc}%</span>` : '';
+  const hotBadge = p.hot ? `<span class="pkg-hot">HOT 🔥</span>` : '';
+  return `${discBadge}${hotBadge}${imgHtml}<span class="pkg-amt">${p.l}</span>${priceHtml}`;
+}
+
 function rebuildGamePkgUI(gk) {
   const el = document.getElementById('pkgs-'+gk);
   if (!el) return;
   el.innerHTML = '';
+  const disc = GAMES[gk].discount || 0;
   GAMES[gk].pkgs.forEach((p, i) => {
     const d = document.createElement('div');
     d.className = 'pkg' + (i === 0 ? ' sel' : '');
     d.id = `pkg-${gk}-${i}`;
     d.onclick = () => selectPkg(gk, i);
-    d.innerHTML = `${p.hot ? '<span class="pkg-hot">HOT 🔥</span>' : ''}
-      <span class="pkg-ico">💎</span>
-      <span class="pkg-amt">${p.l}</span>
-      <span class="pkg-prc">${Number(p.p).toLocaleString()} ₭</span>`;
+    d.innerHTML = renderPkgCard(gk, p, i, disc);
     el.appendChild(d);
   });
   selPkg[gk] = 0;
@@ -1356,48 +1391,82 @@ function buildPackageEditor() {
     const g = GAMES[gk];
     const block = document.createElement('div');
     block.className = 'pkg-edit-game';
-    block.innerHTML = `<div class="pkg-edit-game-title"><span>${g.icon}</span> ${g.name}</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:7px;margin-bottom:6px">
-        <div style="font-size:10px;color:var(--muted);font-weight:700;padding-left:4px">ຊື່ Package</div>
+    block.innerHTML = `<div class="pkg-edit-game-title"><span>${g.icon}</span> ${g.name}
+      <div style="display:flex;align-items:center;gap:8px;margin-top:6px">
+        <span style="font-size:11px;color:var(--muted)">🏷 ສ່ວນລົດ (%) ທຸກ Package:</span>
+        <input type="number" id="disc-${gk}" value="${g.discount||0}" min="0" max="99" style="width:60px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:4px 8px;color:var(--text);font-family:inherit;font-size:13px;outline:none">
+        <span style="font-size:11px;color:#ff3366">%</span>
+      </div>
+    </div>
+      <div style="display:grid;grid-template-columns:1fr 80px 60px auto;gap:6px;margin-bottom:6px">
+        <div style="font-size:10px;color:var(--muted);font-weight:700;padding-left:4px">ຊື່ / URL ຮູບ Package</div>
         <div style="font-size:10px;color:var(--muted);font-weight:700;padding-left:4px">ລາຄາ (₭)</div>
         <div style="font-size:10px;color:var(--muted);font-weight:700">HOT</div>
+        <div></div>
       </div>
-      <div id="pkg-rows-${gk}"></div>`;
+      <div id="pkg-rows-${gk}"></div>
+      <button onclick="addPkgRow('${gk}')" style="width:100%;padding:9px;background:rgba(0,212,255,.1);border:1.5px dashed var(--ac);color:var(--ac);border-radius:9px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;margin-top:6px">➕ ເພີ່ມ Package</button>`;
     el.appendChild(block);
     const rowsEl = block.querySelector(`#pkg-rows-${gk}`);
     g.pkgs.forEach((p, i) => {
-      const row = document.createElement('div');
-      row.className = 'pkg-edit-row';
-      row.innerHTML = `
-        <input type="text" value="${p.l}" id="pke-l-${gk}-${i}" placeholder="ຊື່ Package">
-        <input type="number" value="${p.p}" id="pke-p-${gk}-${i}" placeholder="ລາຄາ">
-        <button class="pkg-hot-toggle${p.hot?' on':''}" id="pke-h-${gk}-${i}"
-          onclick="this.classList.toggle('on')">${p.hot?'🔥 HOT':'—'}</button>`;
-      rowsEl.appendChild(row);
-      // toggle label
-      row.querySelector(`#pke-h-${gk}-${i}`).addEventListener('click', function() {
-        this.textContent = this.classList.contains('on') ? '🔥 HOT' : '—';
-      });
+      rowsEl.appendChild(makePkgRow(gk, i, p));
     });
   });
+}
+
+function makePkgRow(gk, i, p) {
+  const row = document.createElement('div');
+  row.className = 'pkg-edit-row';
+  row.id = `pke-row-${gk}-${i}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 80px 44px 34px;gap:6px;margin-bottom:6px';
+  row.innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <input type="text" value="${p.l}" id="pke-l-${gk}-${i}" placeholder="ຊື່ Package" style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;width:100%">
+      <input type="text" value="${p.img||''}" id="pke-img-${gk}-${i}" placeholder="URL ຮູບ (ທາງເລືອກ)" style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:5px 9px;color:var(--text);font-family:inherit;font-size:10px;outline:none;width:100%;color:var(--muted)">
+    </div>
+    <input type="number" value="${p.p}" id="pke-p-${gk}-${i}" placeholder="ລາຄາ" style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;width:100%">
+    <button class="pkg-hot-toggle${p.hot?' on':''}" id="pke-h-${gk}-${i}"
+        onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'🔥':'—'"
+        style="padding:0;border-radius:7px;font-size:13px;border:1.5px solid var(--bdr);background:var(--bg);color:var(--text);cursor:pointer;height:100%">${p.hot?'🔥':'—'}</button>
+    <button onclick="removePkgRow('${gk}',${i})" style="padding:0;border-radius:7px;font-size:15px;border:1.5px solid rgba(255,68,68,.3);background:rgba(255,68,68,.08);color:var(--err);cursor:pointer;height:38px">🗑</button>`;
+  return row;
+}
+
+function addPkgRow(gk) {
+  const i = GAMES[gk].pkgs.length;
+  GAMES[gk].pkgs.push({l:'ຊື່ Package',p:0,img:''});
+  const rowsEl = document.getElementById(`pkg-rows-${gk}`);
+  if (rowsEl) rowsEl.appendChild(makePkgRow(gk, i, GAMES[gk].pkgs[i]));
+}
+
+function removePkgRow(gk, idx) {
+  GAMES[gk].pkgs.splice(idx, 1);
+  buildPackageEditor();
 }
 
 async function savePackages() {
   const newPkgs = {};
   Object.keys(GAMES).forEach(gk => {
+    const discEl = document.getElementById(`disc-${gk}`);
+    if (discEl) GAMES[gk].discount = parseInt(discEl.value) || 0;
     newPkgs[gk] = GAMES[gk].pkgs.map((_, i) => {
       const l = document.getElementById(`pke-l-${gk}-${i}`)?.value.trim() || _.l;
       const p = parseInt(document.getElementById(`pke-p-${gk}-${i}`)?.value) || _.p;
       const hot = document.getElementById(`pke-h-${gk}-${i}`)?.classList.contains('on') || false;
-      return { l, p, hot };
+      const img = document.getElementById(`pke-img-${gk}-${i}`)?.value.trim() || _.img || '';
+      return { l, p, hot, img };
     });
     GAMES[gk].pkgs = newPkgs[gk];
     rebuildGamePkgUI(gk);
   });
+  // save discount per game separately
+  const discounts = {};
+  Object.keys(GAMES).forEach(gk => { discounts[gk] = GAMES[gk].discount || 0; });
   showLoading('ກຳລັງບັນທຶກ...');
   const ok = await SB.setSetting('game_packages', JSON.stringify(newPkgs));
+  await SB.setSetting('game_discounts', JSON.stringify(discounts));
   hideLoading();
-  if (ok) showToast('✅ ບັນທຶກ Packages ສຳເລັດ! ທຸກຄົນເຫັນແລ້ວ');
+  if (ok) showToast('✅ ບັນທຶກ Packages & ສ່ວນລົດສຳເລັດ!');
   else showToast('⚠️ ບໍ່ສາມາດ sync ໄດ້ — ກວດສອບ Supabase settings table', 'err');
 }
 
@@ -1405,16 +1474,63 @@ async function savePackages() {
 // GAME DATA
 // ══════════════════════════════════════
 const GAMES = {
-  MLBB:{name:'Mobile Legends',icon:'⚔️',bg:'linear-gradient(135deg,#1a3a8f,#3d7ef5)',currency:'Diamonds',
-    pkgs:[{l:'36 Diamonds',p:20000},{l:'68 Diamonds',p:38000},{l:'155 Diamonds',p:85000,hot:true},{l:'311 Diamonds',p:170000},{l:'568 Diamonds',p:310000},{l:'1144 Diamonds',p:600000,hot:true}]},
-  FF:{name:'Free Fire',icon:'🔥',bg:'linear-gradient(135deg,#8b1a1a,#ff4d0d)',currency:'Diamonds',
-    pkgs:[{l:'50 Diamonds',p:20000},{l:'100 Diamonds',p:40000},{l:'210 Diamonds',p:85000,hot:true},{l:'500 Diamonds',p:200000},{l:'1000 Diamonds',p:390000,hot:true},{l:'2000 Diamonds',p:750000}]},
-  ROV:{name:'ROV',icon:'👑',bg:'linear-gradient(135deg,#4a0e78,#9b59b6)',currency:'Voucher',
-    pkgs:[{l:'50 Voucher',p:15000},{l:'100 Voucher',p:30000},{l:'250 Voucher',p:75000,hot:true},{l:'500 Voucher',p:150000},{l:'1000 Voucher',p:295000,hot:true},{l:'2000 Voucher',p:580000}]}
+  MLBB:{name:'Mobile Legends',icon:'⚔️',bg:'linear-gradient(135deg,#1a3a8f,#3d7ef5)',currency:'Diamonds',discount:0,
+    pkgs:[
+      {l:'36 💎',p:20000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'68 💎',p:38000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'155 💎',p:85000,hot:true,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'311 💎',p:170000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'568 💎',p:310000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'1144 💎',p:600000,hot:true,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'2195 💎',p:1150000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'Weekly Pass',p:22000,img:'https://i.imgur.com/eYkHGfh.png',cat:'pass'},
+      {l:'Monthly Pass',p:85000,hot:true,img:'https://i.imgur.com/eYkHGfh.png',cat:'pass'},
+      {l:'Twilight Pass',p:280000,img:'https://i.imgur.com/eYkHGfh.png',cat:'pass'}
+    ]},
+  FF:{name:'Free Fire',icon:'🔥',bg:'linear-gradient(135deg,#8b1a1a,#ff4d0d)',currency:'Diamonds',discount:0,
+    pkgs:[
+      {l:'50 💎',p:20000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
+      {l:'100 💎',p:40000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
+      {l:'210 💎',p:85000,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
+      {l:'500 💎',p:200000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
+      {l:'1000 💎',p:390000,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
+      {l:'2000 💎',p:750000,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60'},
+      {l:'เติบโต 6',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
+      {l:'เติบโต 10',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
+      {l:'เติบโต 15',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
+      {l:'เติบโต 20',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
+      {l:'เติบโต 25',p:11314,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
+      {l:'เติบโต 30',p:15840,img:'https://i.imgur.com/P1QWvgQ.png',cat:'pass'},
+      {l:'ลายอาทิตย์มีมี W',p:22628,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'weekly'},
+      {l:'ลายอาทิตย์ W',p:45255,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'weekly'},
+      {l:'BP Card บูย่าพาด',p:61095,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'pass'},
+      {l:'ลายเดือม M',p:203648,hot:true,img:'https://play-lh.googleusercontent.com/FFqL4qNlCpj3R1Sz0X3r_YHgwsJ6mfFVaWtNRPIUNInBmPETqB3i6gCvFEjOlLc0WQ=w60',cat:'monthly'}
+    ]},
+  MLBG:{name:'Mobile Legends (Global)',icon:'⚔️',bg:'linear-gradient(135deg,#0b2a6e,#1e56c0)',currency:'Diamonds',discount:0,
+    pkgs:[
+      {l:'11 💎',p:12000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'22 💎',p:24000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'56 💎',p:60000,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'112 💎',p:118000,hot:true,img:'https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w60'},
+      {l:'Weekly Diamond Pass',p:22000,img:'https://i.imgur.com/eYkHGfh.png',cat:'weekly'},
+      {l:'Monthly Diamond Pass',p:80000,hot:true,img:'https://i.imgur.com/eYkHGfh.png',cat:'monthly'}
+    ]},
+  ROV:{name:'ROV',icon:'👑',bg:'linear-gradient(135deg,#4a0e78,#9b59b6)',currency:'Voucher',discount:0,
+    pkgs:[
+      {l:'50 🪙',p:15000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
+      {l:'100 🪙',p:30000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
+      {l:'250 🪙',p:75000,hot:true,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
+      {l:'500 🪙',p:150000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
+      {l:'1000 🪙',p:295000,hot:true,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
+      {l:'2000 🪙',p:580000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60'},
+      {l:'Weekly Pass',p:25000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60',cat:'weekly'},
+      {l:'Monthly Pass',p:90000,hot:true,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60',cat:'monthly'},
+      {l:'Season Pass',p:250000,img:'https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w60',cat:'pass'}
+    ]}
 };
 
 const PAGE_LABELS = {home:'ໜ້າຫຼັກ',topup:'ເຕີມເກມ',history:'ປະຫວັດ',profile:'ໂປຣໄຟລ໌',admin:'Admin'};
-let selPkg = {MLBB:0,FF:0,ROV:0};
+let selPkg = {MLBB:0,FF:0,MLBG:0,ROV:0};
 let curGame = 'MLBB';
 let slipDataURL = null;
 let adminLoggedIn = false;
@@ -1424,15 +1540,14 @@ let pendingConfirmId = null;
 // Build packages
 Object.keys(GAMES).forEach(gk => {
   const el = document.getElementById('pkgs-'+gk);
+  if (!el) return;
+  const disc = GAMES[gk].discount || 0;
   GAMES[gk].pkgs.forEach((p,i) => {
     const d = document.createElement('div');
     d.className = 'pkg'+(i===0?' sel':'');
     d.id = `pkg-${gk}-${i}`;
     d.onclick = () => selectPkg(gk,i);
-    d.innerHTML = `${p.hot?'<span class="pkg-hot">HOT 🔥</span>':''}
-      <span class="pkg-ico">💎</span>
-      <span class="pkg-amt">${p.l}</span>
-      <span class="pkg-prc">${p.p.toLocaleString()} ₭</span>`;
+    d.innerHTML = renderPkgCard(gk, p, i, disc);
     el.appendChild(d);
   });
 });
@@ -1470,11 +1585,13 @@ function switchGame(gk) {
 function openOrder(gk) {
   curGame=gk;
   const g=GAMES[gk], pkg=g.pkgs[selPkg[gk]];
+  const disc = g.discount || 0;
+  const finalPrice = calcDiscPrice(pkg.p, disc) || pkg.p;
   document.getElementById('sh-title').textContent=`ສັ່ງເຕີມ ${g.name}`;
   document.getElementById('spd-g').textContent=`${g.name} (${g.currency})`;
   document.getElementById('spd-p').textContent=pkg.l;
-  document.getElementById('spd-pr').textContent=pkg.p.toLocaleString()+' ₭';
-  document.getElementById('qr-amount').textContent=pkg.p.toLocaleString()+' ₭';
+  document.getElementById('spd-pr').textContent=finalPrice.toLocaleString()+' ₭';
+  document.getElementById('qr-amount').textContent=finalPrice.toLocaleString()+' ₭';
   document.getElementById('inp-id').value='';
   document.getElementById('inp-name').value='';
   document.getElementById('inp-phone').value='';
@@ -1509,6 +1626,8 @@ async function submitOrder() {
   if(!slipDataURL){ showToast('⚠️ ອັບໂຫລດສະລິບກ່ອນ','err'); return; }
 
   const g=GAMES[curGame], pkg=g.pkgs[selPkg[curGame]];
+  const disc = g.discount || 0;
+  const finalPrice = calcDiscPrice(pkg.p, disc) || pkg.p;
   document.getElementById('sub-btn').disabled=true;
   showLoading('ກຳລັງອັບໂຫລດ...');
   // บันทึกเบอร์โทรไว้ใช้ filter history
@@ -1517,7 +1636,7 @@ async function submitOrder() {
     const fname=`slip_${Date.now()}.jpg`;
     const slipUrl=await SB.uploadSlip(slipDataURL, fname);
     // Always save base64 as slip_data fallback so admin can view slip even if Storage URL fails
-    const orderData={ game:curGame, game_name:g.name, icon:g.icon, pkg:pkg.l, price:pkg.p, game_id:id, username:name, phone:phone, status:'pending', slip_url:slipUrl||'', slip_data:slipDataURL };
+    const orderData={ game:curGame, game_name:g.name, icon:g.icon, pkg:pkg.l, price:finalPrice, game_id:id, username:name, phone:phone, status:'pending', slip_url:slipUrl||'', slip_data:slipDataURL };
     const result=await SB.insertOrder(orderData);
     const newOrder=Array.isArray(result)?result[0]:result;
     hideLoading();
