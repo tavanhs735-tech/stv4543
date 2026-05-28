@@ -2176,7 +2176,8 @@ async function refreshHistory(btn) {
 
 
 // ── PROMO IMAGES ──
-let promoTemp = {}; // {index: base64}
+// เก็บรูปทั้งหมดในหน่วยความจำ ไม่ใช้ index-based temp
+let promoList = []; // array of base64 strings
 
 function getPromos() {
   try { return JSON.parse(localStorage.getItem('stv_promos') || '[]'); } catch { return []; }
@@ -2187,7 +2188,6 @@ function renderPromos() {
   const el = document.getElementById('promo-section');
   if (!el) return;
   if (!promos.length) {
-    // fallback banners
     el.innerHTML = `<div class="bnr-row">
       <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ທຸກ Package</span></div></div>
       <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
@@ -2201,87 +2201,96 @@ function renderPromos() {
 }
 
 function buildPromoEditor() {
-  const promos = getPromos();
+  // โหลดรูปปัจจุบันเข้า promoList เสมอ
+  promoList = [...getPromos()];
+  _renderPromoEditor();
+}
+
+function _renderPromoEditor() {
   const el = document.getElementById('promo-editor-list');
   el.innerHTML = '';
-  promoTemp = {};
-  promos.forEach((src, i) => {
+  if (!promoList.length) {
+    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">ຍັງບໍ່ມີໂປຣໂມ — ກົດ ➕ ເພີ່ມ</div>';
+    return;
+  }
+  promoList.forEach((src, i) => {
     const div = document.createElement('div');
     div.className = 'promo-editor-item';
-    div.id = 'pe-' + i;
     div.innerHTML = `
-      <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">📢 ໂປຣໂມ ${i+1}</div>
-      <div class="pe-prev" id="pe-prev-${i}"><img src="${src}" onerror="this.parentNode.innerHTML='<span style=color:var(--muted)>🖼</span>'"></div>
-      <label class="pe-upload">📁 ປ່ຽນຮູບ
-        <input type="file" accept="image/*" onchange="previewPromo(this,${i})">
-      </label>
-      <button class="pe-del" onclick="deletePromo(${i})">🗑 ລົບໂປຣໂມນີ້</button>`;
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+        <span style="font-size:12px;font-weight:700;color:var(--muted)">📢 ໂປຣໂມ ${i+1}</span>
+        <button onclick="promoMoveUp(${i})" style="background:rgba(255,255,255,.08);border:none;border-radius:6px;padding:3px 8px;color:var(--text);cursor:pointer;font-size:13px" title="ຂຶ້ນ">↑</button>
+        <button onclick="promoMoveDown(${i})" style="background:rgba(255,255,255,.08);border:none;border-radius:6px;padding:3px 8px;color:var(--text);cursor:pointer;font-size:13px" title="ລົງ">↓</button>
+        <button onclick="promoDelete(${i})" style="background:rgba(255,68,68,.12);border:1px solid rgba(255,68,68,.3);border-radius:6px;padding:3px 10px;color:var(--err);cursor:pointer;font-size:12px;font-weight:700">🗑 ລົບ</button>
+      </div>
+      <div class="pe-prev" id="pe-prev-${i}" style="cursor:pointer" onclick="document.getElementById('pe-file-${i}').click()">
+        ${src ? `<img src="${src}" style="width:100%;height:100%;object-fit:cover">` : '<span style="color:var(--muted);font-size:28px">🖼</span>'}
+      </div>
+      <input type="file" accept="image/*" id="pe-file-${i}" style="display:none" onchange="promoFileChange(this,${i})">
+      <label class="pe-upload" onclick="document.getElementById('pe-file-${i}').click()">📁 ${src ? 'ປ່ຽນຮູບ' : 'ເລືອກຮູບ'}</label>`;
     el.appendChild(div);
   });
-  if (!promos.length) {
-    el.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:13px">ຍັງບໍ່ມີໂປຣໂມ — ກົດ ➕ ເພີ່ມ</div>';
-  }
 }
 
-function addPromoSlot() {
-  const promos = getPromos();
-  if (promos.length >= 10) { showToast('⚠️ ສູງສຸດ 10 ຮູບ', 'err'); return; }
-  // Add placeholder, then let user upload
-  const idx = promos.length;
-  const div = document.createElement('div');
-  div.className = 'promo-editor-item';
-  div.id = 'pe-' + idx;
-  div.innerHTML = `
-    <div style="font-size:12px;font-weight:700;color:var(--muted);margin-bottom:8px">📢 ໂປຣໂມ ${idx+1} (ໃໝ່)</div>
-    <div class="pe-prev" id="pe-prev-${idx}"><span style="color:var(--muted);font-size:28px">🖼</span></div>
-    <label class="pe-upload">📁 ເລືອກຮູບ
-      <input type="file" accept="image/*" onchange="previewPromo(this,${idx})">
-    </label>
-    <button class="pe-del" onclick="this.closest('.promo-editor-item').remove()">✕ ຍົກເລີກ</button>`;
-  document.getElementById('promo-editor-list').appendChild(div);
-}
-
-function previewPromo(input, idx) {
+function promoFileChange(input, idx) {
   const file = input.files[0]; if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    promoTemp[idx] = e.target.result;
+    promoList[idx] = e.target.result;
+    // update preview only, ไม่ต้อง rebuild ทั้งหมด
     const prev = document.getElementById('pe-prev-' + idx);
     if (prev) prev.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover">`;
+    const lbl = prev?.nextElementSibling?.nextElementSibling;
+    if (lbl && lbl.classList.contains('pe-upload')) lbl.textContent = '📁 ປ່ຽນຮູບ';
+    showToast(`✅ ໂຫລດຮູບ ${idx+1} ສຳເລັດ — ກົດ 💾 ບັນທຶກ`);
   };
   reader.readAsDataURL(file);
 }
 
-function deletePromo(idx) {
-  if (!confirm('ລົບໂປຣໂມນີ້?')) return;
-  const promos = getPromos();
-  promos.splice(idx, 1);
-  localStorage.setItem('stv_promos', JSON.stringify(promos));
-  buildPromoEditor();
-  renderPromos();
-  showToast('🗑 ລົບສຳເລັດ');
-  SB.setSetting('promo_images', JSON.stringify(promos));
+function promoDelete(idx) {
+  promoList.splice(idx, 1);
+  _renderPromoEditor();
+  showToast('🗑 ລົບຮູບ ' + (idx+1) + ' ແລ້ວ — ກົດ 💾 ເພື່ອບັນທຶກ');
 }
 
+function promoMoveUp(idx) {
+  if (idx === 0) return;
+  [promoList[idx-1], promoList[idx]] = [promoList[idx], promoList[idx-1]];
+  _renderPromoEditor();
+}
+
+function promoMoveDown(idx) {
+  if (idx >= promoList.length - 1) return;
+  [promoList[idx], promoList[idx+1]] = [promoList[idx+1], promoList[idx]];
+  _renderPromoEditor();
+}
+
+function addPromoSlot() {
+  if (promoList.length >= 10) { showToast('⚠️ ສູງສຸດ 10 ຮູບ', 'err'); return; }
+  promoList.push(''); // placeholder
+  _renderPromoEditor();
+  // scroll to bottom ให้เห็น slot ใหม่
+  setTimeout(() => {
+    const el = document.getElementById('promo-editor-list');
+    if (el) el.lastElementChild?.scrollIntoView({behavior:'smooth'});
+  }, 100);
+}
+
+// compat: เผื่อโค้ดเก่ายังเรียก previewPromo
+function previewPromo(input, idx) { promoFileChange(input, idx); }
+
 async function savePromos() {
-  const promos = getPromos();
-  // Merge existing + new/updated
-  const editors = document.querySelectorAll('.promo-editor-item');
-  const result = [];
-  editors.forEach((div, i) => {
-    const idx = parseInt(div.id.replace('pe-',''));
-    if (promoTemp[idx]) result.push(promoTemp[idx]);
-    else if (promos[idx]) result.push(promos[idx]);
-  });
-  if (!result.length) { showToast('⚠️ ບໍ່ມີຮູບ', 'err'); return; }
+  // กรองเอาเฉพาะรูปที่มีข้อมูลจริง (ไม่ใช่ placeholder ว่าง)
+  const result = promoList.filter(s => s && s.length > 10);
+  if (!result.length) { showToast('⚠️ ບໍ່ມີຮູບທີ່ຈະບັນທຶກ', 'err'); return; }
   localStorage.setItem('stv_promos', JSON.stringify(result));
-  showLoading('ກຳລັງ sync ໂປຣໂມ...');
+  promoList = [...result];
+  showLoading(`ກຳລັງ sync ${result.length} ຮູບ...`);
   const ok = await SB.setSetting('promo_images', JSON.stringify(result));
   hideLoading();
-  if (ok) showToast('✅ Sync ໂປຣໂມ ທຸກໂທລະສັບສຳເລັດ!');
-  else showToast('⚠️ ບັນທຶກສະເພາະເຄື່ອງນີ້', 'err');
-  promoTemp = {};
-  buildPromoEditor();
+  if (ok) showToast(`✅ Sync ${result.length} ຮູບໂປຣໂມ ທຸກໂທລະສັບສຳເລັດ!`);
+  else showToast('⚠️ ບັນທຶກສະເພາະເຄື່ອງນີ້ — ກວດ Supabase', 'err');
+  _renderPromoEditor();
   renderPromos();
 }
 
