@@ -1494,13 +1494,18 @@ function makePkgRow(gk, i, p) {
 
 function handlePkgImgUpload(input, gk, i) {
   const file = input.files[0];
-  if (!file) return;
+  if (!file) {
+    console.log('❌ ไม่มีไฟล์เลือก');
+    return;
+  }
+  console.log(`📸 อัพโหลดรูป: ${file.name} สำหรับ ${gk} package ${i}`);
   const reader = new FileReader();
   reader.onload = e => {
     const data = e.target.result;
     // เก็บ base64 ไว้ใน GAMES object
     GAMES[gk].pkgs[i].imgData = data;
     GAMES[gk].pkgs[i].img = data;
+    console.log(`✅ บันทึกรูปเรียบร้อย: ${gk}-${i}`);
     // อัปเดต preview ในแถว
     const prev = document.getElementById(`pke-prev-${gk}-${i}`);
     if (prev) {
@@ -1529,6 +1534,9 @@ function handlePkgImgUpload(input, gk, i) {
 function clearPkgImg(gk, i) {
   GAMES[gk].pkgs[i].imgData = '';
   GAMES[gk].pkgs[i].img = '';
+  // Reset file input
+  const fileInput = document.getElementById(`pke-file-${gk}-${i}`);
+  if (fileInput) fileInput.value = '';
   buildPackageEditor();
   rebuildGamePkgUI(gk);
 }
