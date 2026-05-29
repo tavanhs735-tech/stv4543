@@ -1014,14 +1014,36 @@ const SB = {
   },
   async setSetting(key, value) {
     try {
-      // Upsert
-      const r = await fetch(`${SB_URL}/rest/v1/settings`, {
+      // ขั้นตอน 1: ลองอัพเดต (PATCH) ก่อน
+      const patchR = await fetch(`${SB_URL}/rest/v1/settings?key=eq.${encodeURIComponent(key)}`, {
+        method: 'PATCH',
+        headers: hdrs,
+        body: JSON.stringify({ value })
+      });
+
+      if (patchR.ok) {
+        console.log(`✅ Updated setting: ${key}`);
+        return true;
+      }
+
+      // ขั้นตอน 2: ถ้า PATCH ล้มเหลว ให้สร้างแถวใหม่ (POST)
+      const postR = await fetch(`${SB_URL}/rest/v1/settings`, {
         method: 'POST',
-        headers: { ...hdrs, 'Prefer': 'resolution=merge-duplicates' },
+        headers: hdrs,
         body: JSON.stringify({ key, value })
       });
-      return r.ok;
-    } catch { return false; }
+
+      if (postR.ok) {
+        console.log(`✅ Inserted new setting: ${key}`);
+        return true;
+      }
+
+      console.error('❌ setSetting failed:', await postR.text());
+      return false;
+    } catch (e) {
+      console.error('❌ setSetting error:', e);
+      return false;
+    }
   }
 };
 
