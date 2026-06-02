@@ -497,6 +497,11 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
         <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#4a0e78,#9b59b6)">👑</div>
       </div><span class="qg-name">ROV</span>
     </div>
+    <div class="qg" onclick="switchPage('topup');switchGame('EF')">
+      <div class="qg-ico" style="background:linear-gradient(135deg,#003087,#0066cc)">
+        <div class="qg-fb" style="display:flex;background:linear-gradient(135deg,#003087,#0066cc)">⚽</div>
+      </div><span class="qg-name">eFootball</span>
+    </div>
   </div>
   <div class="sh"><span class="sh-t">🔥 ໂປຣໂມຊັ່ນ</span></div>
   <div id="promo-section">
@@ -538,6 +543,9 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <button class="gtab" id="tab-MLBG" onclick="switchGame('MLBG')">
       <div class="gtab-img" style="background:linear-gradient(135deg,#0b2a6e,#1e56c0)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚔️</div></div>ML Global
     </button>
+    <button class="gtab" id="tab-EF" onclick="switchGame('EF')">
+      <div class="gtab-img" style="background:linear-gradient(135deg,#003087,#0066cc)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚽</div></div>eFootball
+    </button>
   </div>
   <div class="gpanel active" id="panel-MLBB">
     <div class="gdh gdh-m"><div class="gdh-bg">⚔️</div>
@@ -574,6 +582,15 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <div class="pkg-lbl">ເລືອກ Package</div>
     <div class="pkgs" id="pkgs-MLBG"></div>
     <button class="order-btn" onclick="openOrder('MLBG')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
+  </div>
+  <div class="gpanel" id="panel-EF">
+    <div class="gdh" style="background:linear-gradient(135deg,#003087,#0066cc)"><div class="gdh-bg">⚽</div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#003087,#0066cc)"><img src="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:flex">⚽</div></div>
+      <div class="gd-info"><h3>eFootball</h3><p>Konami — PES Mobile</p><span class="gd-badge">🪙 Coins</span></div>
+    </div>
+    <div class="pkg-lbl">ເລືອກ Package</div>
+    <div class="pkgs" id="pkgs-EF"></div>
+    <button class="order-btn" onclick="openOrder('EF')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
   </div>
 </div>
 <div class="pg" id="pg-history">
@@ -1479,8 +1496,8 @@ function makePkgRow(gk, i, p) {
         <input type="text" value="${p.l}" id="pke-l-${gk}-${i}" placeholder="ຊື່ Package"
           style="background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none;width:100%">
         <div style="display:flex;gap:6px">
-          <input type="number" value="${p.p}" id="pke-p-${gk}-${i}" placeholder="ລາຄາ ₭"
-            style="flex:1;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:7px 9px;color:var(--text);font-family:inherit;font-size:12px;outline:none">
+        <input type="number" value="${p.p}" id="pke-p-${gk}-${i}" placeholder="ລາຄາ ₭"
+            style="flex:1;min-width:110px;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;padding:9px 11px;color:var(--text);font-family:inherit;font-size:14px;font-weight:700;outline:none;letter-spacing:.5px">
           <button class="pkg-hot-toggle${p.hot?' on':''}" id="pke-h-${gk}-${i}"
             onclick="this.classList.toggle('on');this.textContent=this.classList.contains('on')?'🔥 HOT':'—'"
             style="padding:0 8px;border-radius:7px;font-size:11px;border:1.5px solid var(--bdr);background:var(--bg);color:var(--text);cursor:pointer;white-space:nowrap">${p.hot?'🔥 HOT':'—'}</button>
@@ -1634,11 +1651,23 @@ const GAMES = {
       {l:'Weekly Pass',p:25000,img:'',cat:'weekly'},
       {l:'Monthly Pass',p:90000,hot:true,img:'',cat:'monthly'},
       {l:'Season Pass',p:250000,img:'',cat:'pass'}
+    ]},
+  EF:{name:'eFootball',icon:'⚽',bg:'linear-gradient(135deg,#003087,#0066cc)',currency:'Coins',discount:0,
+    pkgs:[
+      {l:'100 🪙',p:18000,img:''},
+      {l:'300 🪙',p:50000,img:''},
+      {l:'500 🪙',p:80000,hot:true,img:''},
+      {l:'1000 🪙',p:155000,img:''},
+      {l:'2000 🪙',p:300000,hot:true,img:''},
+      {l:'3000 🪙',p:440000,img:''},
+      {l:'5000 🪙',p:720000,hot:true,img:''},
+      {l:'Weekly Pass',p:28000,img:'',cat:'weekly'},
+      {l:'Monthly Pass',p:95000,hot:true,img:'',cat:'monthly'}
     ]}
 };
 
 const PAGE_LABELS = {home:'ໜ້າຫຼັກ',topup:'ເຕີມເກມ',history:'ປະຫວັດ',profile:'ໂປຣໄຟລ໌',admin:'Admin'};
-let selPkg = {MLBB:0,FF:0,MLBG:0,ROV:0};
+let selPkg = {MLBB:0,FF:0,MLBG:0,ROV:0,EF:0};
 let curGame = 'MLBB';
 let slipDataURL = null;
 let adminLoggedIn = false;
@@ -2222,6 +2251,7 @@ function renderPromos() {
       <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ທຸກ Package</span></div></div>
       <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
       <div class="bnr br" onclick="switchPage('topup');switchGame('ROV')"><div class="bnr-bg">👑</div><div class="bnr-lbl"><strong>ROV</strong><span>Coins ເຕີມທັນທີ</span></div></div>
+      <div class="bnr" style="background:linear-gradient(135deg,#003087,#0066cc)" onclick="switchPage('topup');switchGame('EF')"><div class="bnr-bg">⚽</div><div class="bnr-lbl"><strong>eFootball</strong><span>Coins ລາຄາພິເສດ</span></div></div>
     </div>`;
     return;
   }
@@ -2385,11 +2415,36 @@ async function saveGameImages() {
   const merged = { ...current, ...GAME_IMG_TEMP };
   localStorage.setItem('stv_game_imgs', JSON.stringify(merged));
   showLoading('ກຳລັງ sync ຮູບເກມ...');
-  // Save to Supabase so all devices get it
-  const ok = await SB.setSetting('game_images', JSON.stringify(merged));
+  // Save to settings table (fallback)
+  await SB.setSetting('game_images', JSON.stringify(merged));
+  // Also sync to game_images table (ໃໝ່ — ທຸກໂທລະສັບດຶງໄດ້)
+  let tableOk = false;
+  try {
+    for (const [gk, src] of Object.entries(GAME_IMG_TEMP)) {
+      const isUrl = src && !src.startsWith('data:');
+      const payload = isUrl
+        ? { game_key: gk, game_name: GAMES[gk]?.name || gk, image_url: src, image_b64: '' }
+        : { game_key: gk, game_name: GAMES[gk]?.name || gk, image_url: '', image_b64: src };
+      // Upsert ໂດຍໃຊ້ on conflict game_key
+      const r = await fetch(`${SB_URL}/rest/v1/game_images?game_key=eq.${gk}`, {
+        method: 'PATCH',
+        headers: hdrs,
+        body: JSON.stringify(payload)
+      });
+      if (!r.ok) {
+        // ຖ້າ PATCH ລົ້ມ → POST ໃໝ່
+        await fetch(`${SB_URL}/rest/v1/game_images`, {
+          method: 'POST',
+          headers: { ...hdrs, 'Prefer': 'resolution=merge-duplicates' },
+          body: JSON.stringify(payload)
+        });
+      }
+    }
+    tableOk = true;
+  } catch(e) { console.warn('game_images table sync failed', e); }
   hideLoading();
-  if (ok) { showToast('✅ Sync ຮູບເກມ ທຸກໂທລະສັບສຳເລັດ!'); }
-  else { showToast('⚠️ ບັນທຶກສະເພາະເຄື່ອງນີ້ (ກວດ Supabase)', 'err'); }
+  if (tableOk) showToast('✅ Sync ຮູບເກມ ທຸກໂທລະສັບສຳເລັດ!');
+  else showToast('✅ ບັນທຶກສຳເລັດ (settings table)');
   applyGameImages(merged);
   buildGameImageEditor();
   Object.keys(GAME_IMG_TEMP).forEach(k => delete GAME_IMG_TEMP[k]);
@@ -2456,15 +2511,33 @@ function applyGameImages(imgs) {
 
 async function loadGameImagesFromCloud() {
   try {
+    // ລອງດຶງຈາກ game_images table ກ່ອນ (ໃໝ່)
+    const r = await fetch(`${SB_URL}/rest/v1/game_images?select=game_key,image_url,image_b64`, { headers: hdrs });
+    if (r.ok) {
+      const rows = await r.json();
+      if (rows && rows.length) {
+        const imgs = {};
+        rows.forEach(row => {
+          const src = row.image_url || row.image_b64 || '';
+          if (src) imgs[row.game_key] = src;
+        });
+        if (Object.keys(imgs).length) {
+          localStorage.setItem('stv_game_imgs', JSON.stringify(imgs));
+          applyGameImages(imgs);
+          return;
+        }
+      }
+    }
+  } catch(e) {}
+  // fallback: settings table (key = 'game_images')
+  try {
     const raw = await SB.getSetting('game_images');
     if (!raw) {
-      // fallback to localStorage
       const local = getGameImages();
       if (Object.keys(local).length) applyGameImages(local);
       return;
     }
     const imgs = JSON.parse(raw);
-    // Cache locally
     localStorage.setItem('stv_game_imgs', JSON.stringify(imgs));
     applyGameImages(imgs);
   } catch {
