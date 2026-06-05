@@ -497,10 +497,11 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
         <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#4a0e78,#9b59b6)">👑</div>
       </div><span class="qg-name">ROV</span>
     </div>
-    <div class="qg" onclick="switchPage('topup');switchGame('EF')">
-      <div class="qg-ico" style="background:linear-gradient(135deg,#003087,#0066cc)">
-        <div class="qg-fb" style="display:flex;background:linear-gradient(135deg,#003087,#0066cc)">⚽</div>
-      </div><span class="qg-name">eFootball</span>
+    <div class="qg" onclick="switchPage('topup');switchGame('RBX')">
+      <div class="qg-ico" style="background:linear-gradient(135deg,#e2231a,#ff6b35)">
+        <img src="https://play-lh.googleusercontent.com/WRRZCdaHZOAYHZSmYe3GaNnp4HPeacTN5lZ06dMw5R5VhpxP3K-JcZpGCBJqGNkCGQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="qg-fb" style="display:none;background:linear-gradient(135deg,#e2231a,#ff6b35)">🟥</div>
+      </div><span class="qg-name">Roblox</span>
     </div>
   </div>
   <div class="sh"><span class="sh-t">🔥 ໂປຣໂມຊັ່ນ</span></div>
@@ -508,7 +509,7 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <div class="bnr-row">
       <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ທຸກ Package</span></div></div>
       <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
-      <div class="bnr br" onclick="switchPage('topup');switchGame('ROV')"><div class="bnr-bg">👑</div><div class="bnr-lbl"><strong>ROV</strong><span>Coins ເຕີມທັນທີ</span></div></div>
+      <div class="bnr br" onclick="switchPage('topup');switchGame('RBX')"><div class="bnr-bg">🟥</div><div class="bnr-lbl"><strong>Roblox</strong><span>Robux ເຕີມທັນທີ</span></div></div>
     </div>
   </div>
   <div class="sh"><span class="sh-t">📋 ຂັ້ນຕອນ</span></div>
@@ -540,8 +541,8 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <button class="gtab" id="tab-ROV" onclick="switchGame('ROV')">
       <div class="gtab-img" style="background:linear-gradient(135deg,#4a0e78,#9b59b6)"><img src="https://play-lh.googleusercontent.com/cjAj5U2oy5kkJGbfO0z5Sf9Z_oSScJDN0GJ9GEDXmGsQGlj8B5Z-oB9LWdHzHJGHyQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">👑</div></div>ROV
     </button>
-    <button class="gtab" id="tab-MLBG" onclick="switchGame('MLBG')">
-      <div class="gtab-img" style="background:linear-gradient(135deg,#0b2a6e,#1e56c0)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚔️</div></div>ML Global
+    <button class="gtab" id="tab-RBX" onclick="switchGame('RBX')">
+      <div class="gtab-img" style="background:linear-gradient(135deg,#e2231a,#ff6b35)"><img src="https://play-lh.googleusercontent.com/WRRZCdaHZOAYHZSmYe3GaNnp4HPeacTN5lZ06dMw5R5VhpxP3K-JcZpGCBJqGNkCGQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">🟥</div></div>Roblox
     </button>
     <button class="gtab" id="tab-EF" onclick="switchGame('EF')">
       <div class="gtab-img" style="background:linear-gradient(135deg,#003087,#0066cc)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gfb" style="display:none">⚽</div></div>eFootball
@@ -574,23 +575,37 @@ html,body{height:100%;overflow:hidden;font-family:'Kanit',sans-serif;background:
     <div class="pkgs" id="pkgs-ROV"></div>
     <button class="order-btn" onclick="openOrder('ROV')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
   </div>
-  <div class="gpanel" id="panel-MLBG">
-    <div class="gdh" style="background:linear-gradient(135deg,#0b2a6e,#1e56c0)"><div class="gdh-bg">⚔️</div>
-      <div class="gd-img" style="background:linear-gradient(135deg,#0b2a6e,#1e56c0)"><img src="https://play-lh.googleusercontent.com/kGP6JkNJfVJvOH5-DLkAVHHfzDPz-yz1sXfUgrNxBxlKcn2X2uyKAQkbFHTxb0zNNpw=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">⚔️</div></div>
-      <div class="gd-info"><h3>ML Bang Bang</h3><p>Global — Moonton</p><span class="gd-badge">💎 Diamonds</span></div>
+  <div class="gpanel" id="panel-RBX">
+    <div class="gdh" style="background:linear-gradient(135deg,#e2231a,#ff6b35)"><div class="gdh-bg">🟥</div>
+      <div class="gd-img" style="background:linear-gradient(135deg,#e2231a,#ff6b35)"><img src="https://play-lh.googleusercontent.com/WRRZCdaHZOAYHZSmYe3GaNnp4HPeacTN5lZ06dMw5R5VhpxP3K-JcZpGCBJqGNkCGQ=w120" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:none">🟥</div></div>
+      <div class="gd-info"><h3>Roblox</h3><p>Roblox Corporation</p><span class="gd-badge">💎 Robux</span></div>
     </div>
     <div class="pkg-lbl">ເລືອກ Package</div>
-    <div class="pkgs" id="pkgs-MLBG"></div>
-    <button class="order-btn" onclick="openOrder('MLBG')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
+    <div class="pkgs" id="pkgs-RBX"></div>
+    <button class="order-btn" onclick="openOrder('RBX')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
   </div>
   <div class="gpanel" id="panel-EF">
     <div class="gdh" style="background:linear-gradient(135deg,#003087,#0066cc)"><div class="gdh-bg">⚽</div>
       <div class="gd-img" style="background:linear-gradient(135deg,#003087,#0066cc)"><img src="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="gd-fb" style="display:flex">⚽</div></div>
-      <div class="gd-info"><h3>eFootball</h3><p>Konami — PES Mobile</p><span class="gd-badge">🪙 Coins</span></div>
+      <div class="gd-info"><h3>eFootball</h3><p>Konami — PES Mobile</p><span class="gd-badge">📋 ຕິດຕໍ່ Admin</span></div>
     </div>
-    <div class="pkg-lbl">ເລືອກ Package</div>
-    <div class="pkgs" id="pkgs-EF"></div>
-    <button class="order-btn" onclick="openOrder('EF')">⚡ ສັ່ງເຕີມດຽວນີ້</button>
+    <!-- eFootball contact form -->
+    <div style="background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.25);border-radius:14px;padding:16px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:800;color:var(--ac);margin-bottom:4px">📢 ຕິດຕາມຂ່າວສານ eFootball</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.7">ກະລຸນາກອກຂໍ້ມູນຂ້າງລຸ່ມ ເພື່ອໃຫ້ Admin ຕິດຕໍ່ກັບທ່ານ ກ່ຽວກັບ Package ແລະ ໂປຣໂມຊັ່ນ eFootball</div>
+    </div>
+    <div class="fg"><label>📧 Email ເກມ</label><input type="email" id="ef-email" placeholder="yourname@email.com" autocomplete="email"></div>
+    <div class="fg"><label>🔑 ລະຫັດຜ່ານເກມ</label>
+      <div style="position:relative">
+        <input type="password" id="ef-pw" placeholder="ລະຫັດຜ່ານ Account ເກມ" style="width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:11px;padding:12px 44px 12px 13px;color:var(--text);font-family:inherit;font-size:14px;outline:none">
+        <span onclick="toggleEfPw()" style="position:absolute;right:13px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:18px;opacity:.6">👁</span>
+      </div>
+    </div>
+    <div class="fg"><label>📱 ເບີ WhatsApp ຕິດຕໍ່</label><input type="tel" id="ef-wa" placeholder="+856 20 xx xxx xxx" inputmode="tel"></div>
+    <div style="background:rgba(255,107,53,.08);border:1px solid rgba(255,107,53,.25);border-radius:11px;padding:11px 13px;font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.7">
+      ⚠️ <strong style="color:var(--theme-p)">ໝາຍເຫດ:</strong> ຂໍ້ມູນ Email/ລະຫັດຜ່ານ ໃຊ້ສຳລັບ Admin ເຕີມເທົ່ານັ້ນ · ຈະຖືກລຶບທຳລາຍຫຼັງເຕີມສຳເລັດ
+    </div>
+    <button class="order-btn" onclick="submitEfContact()">📲 ສົ່ງຂໍ້ມູນຫາ Admin WhatsApp</button>
   </div>
 </div>
 <div class="pg" id="pg-history">
@@ -1400,6 +1415,7 @@ function pkgEmoji(gk, p) {
   if (p.cat === 'monthly') return '🗓️';
   if (p.cat === 'pass') return '🎫';
   if (gk === 'ROV') return '🪙';
+  if (gk === 'RBX') return '🟥';
   return '💎';
 }
 
@@ -1640,6 +1656,17 @@ const GAMES = {
       {l:'Weekly Pass',p:22000,img:'',cat:'weekly'},
       {l:'Monthly Pass',p:80000,hot:true,img:'',cat:'monthly'}
     ]},
+  RBX:{name:'Roblox',icon:'🟥',bg:'linear-gradient(135deg,#e2231a,#ff6b35)',currency:'Robux',discount:0,
+    pkgs:[
+      {l:'80 Robux',p:20000,img:''},
+      {l:'160 Robux',p:38000,img:''},
+      {l:'400 Robux',p:90000,hot:true,img:''},
+      {l:'800 Robux',p:178000,img:''},
+      {l:'1700 Robux',p:370000,hot:true,img:''},
+      {l:'2200 Robux',p:470000,img:''},
+      {l:'4500 Robux',p:940000,hot:true,img:''},
+      {l:'10000 Robux',p:2000000,img:''}
+    ]},
   ROV:{name:'ROV',icon:'👑',bg:'linear-gradient(135deg,#4a0e78,#9b59b6)',currency:'Voucher',discount:0,
     pkgs:[
       {l:'50 🪙',p:15000,img:''},
@@ -1667,7 +1694,7 @@ const GAMES = {
 };
 
 const PAGE_LABELS = {home:'ໜ້າຫຼັກ',topup:'ເຕີມເກມ',history:'ປະຫວັດ',profile:'ໂປຣໄຟລ໌',admin:'Admin'};
-let selPkg = {MLBB:0,FF:0,MLBG:0,ROV:0,EF:0};
+let selPkg = {MLBB:0,FF:0,RBX:0,ROV:0,EF:0};
 let curGame = 'MLBB';
 let slipDataURL = null;
 let adminLoggedIn = false;
@@ -2250,8 +2277,8 @@ function renderPromos() {
     el.innerHTML = `<div class="bnr-row">
       <div class="bnr bm" onclick="switchPage('topup');switchGame('MLBB')"><div class="bnr-bg">⚔️</div><div class="bnr-lbl"><strong>Mobile Legends</strong><span>ເພີ່ມ 5% ທຸກ Package</span></div></div>
       <div class="bnr bf" onclick="switchPage('topup');switchGame('FF')"><div class="bnr-bg">🔥</div><div class="bnr-lbl"><strong>Free Fire</strong><span>Diamonds ລາຄາຖືກ</span></div></div>
-      <div class="bnr br" onclick="switchPage('topup');switchGame('ROV')"><div class="bnr-bg">👑</div><div class="bnr-lbl"><strong>ROV</strong><span>Coins ເຕີມທັນທີ</span></div></div>
-      <div class="bnr" style="background:linear-gradient(135deg,#003087,#0066cc)" onclick="switchPage('topup');switchGame('EF')"><div class="bnr-bg">⚽</div><div class="bnr-lbl"><strong>eFootball</strong><span>Coins ລາຄາພິເສດ</span></div></div>
+      <div class="bnr br" onclick="switchPage('topup');switchGame('RBX')"><div class="bnr-bg">🟥</div><div class="bnr-lbl"><strong>Roblox</strong><span>Robux ເຕີມທັນທີ</span></div></div>
+      <div class="bnr" style="background:linear-gradient(135deg,#003087,#0066cc)" onclick="switchPage('topup');switchGame('EF')"><div class="bnr-bg">⚽</div><div class="bnr-lbl"><strong>eFootball</strong><span>ຕິດຕໍ່ Admin</span></div></div>
     </div>`;
     return;
   }
@@ -2544,6 +2571,28 @@ async function loadGameImagesFromCloud() {
     const local = getGameImages();
     if (Object.keys(local).length) applyGameImages(local);
   }
+}
+
+// ── EFOOTBALL CONTACT FORM ──
+function toggleEfPw() {
+  const inp = document.getElementById('ef-pw');
+  const icon = inp.nextElementSibling;
+  if (inp.type === 'password') { inp.type = 'text'; icon.textContent = '🙈'; }
+  else { inp.type = 'password'; icon.textContent = '👁'; }
+}
+
+function submitEfContact() {
+  const email = document.getElementById('ef-email').value.trim();
+  const pw    = document.getElementById('ef-pw').value.trim();
+  const wa    = document.getElementById('ef-wa').value.trim();
+  if (!email || !email.includes('@')) { showToast('⚠️ ໃສ່ Email ໃຫ້ຖືກຕ້ອງ','err'); return; }
+  if (!pw) { showToast('⚠️ ໃສ່ລະຫັດຜ່ານ','err'); return; }
+  if (!wa) { showToast('⚠️ ໃສ່ເບີ WhatsApp','err'); return; }
+  const cfg = getCfg();
+  const ph = cfg.waPhone.replace(/\D/g,'');
+  const msg = `⚽ *eFootball — ຂໍ້ມູນຕິດຕໍ່*\n━━━━━━━━━━━━━━\n📧 Email: ${email}\n🔑 Password: ${pw}\n📱 WhatsApp: ${wa}\n━━━━━━━━━━━━━━\n✅ ກວດສອບ & ຕິດຕໍ່ Admin ເພື່ອເຕີມ eFootball`;
+  window.open(`https://wa.me/${ph}?text=${encodeURIComponent(msg)}`,'_blank');
+  showToast('✅ ສົ່ງຂໍ້ມູນຫາ Admin ສຳເລັດ!');
 }
 
 // ── AUTO REFRESH ──
